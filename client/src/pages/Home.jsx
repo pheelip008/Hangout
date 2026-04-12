@@ -1,12 +1,15 @@
 import React from 'react'
-import '../pagescss/Home.css'
+import MainLayout from '../layouts/MainLayout';
 
 function Home(){
     return(
         <>
-        <div>
-            Home page;
+        <div className="flex items-center justify-center text-2xl font-semibold ">
+            Home page
         </div>
+        <MainLayout/>
+
+        
         </>
     )
 }

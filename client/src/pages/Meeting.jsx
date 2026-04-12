@@ -1,12 +1,15 @@
 import React from 'react'
 import '../pagescss/Meeting.css'
+import MeetingLayout from '../layouts/MeetingLayout'
 
 function Meeting(){
     return(
         <>
-        <div>
-            Meeting page;
+
+        <div className="flex items-center justify-center text-2xl font-semibold ">
+            Meeting page
         </div>
+        <MeetingLayout/>
         </>
     )
 }
