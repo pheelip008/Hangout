@@ -1,5 +1,9 @@
 const authService=require("./auth.service");
 
+async function logout(req,res){
+    res.clearCookie('token');
+    res.json({success:true,message:"log out successful"})
+}
 async function me(req,res){
     res.json({success:true,userId:req.userId});
 }
@@ -22,4 +26,4 @@ async function login(req,res){
     return res.status(200).json(result);
 }
 
-module.exports={register,login,me};
+module.exports={register,login,me,logout};
