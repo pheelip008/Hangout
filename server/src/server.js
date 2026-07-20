@@ -11,7 +11,10 @@ const jwt=require('jsonwebtoken');
 
 app.use(passport.initialize());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials:true,
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -32,7 +35,7 @@ app.get('/auth/google/callback',
       }
     );
     res.cookie('token',token,{httpOnly:true})
-    res.redirect('http://localhost:5173/home');
+    res.redirect('http://localhost:5173/home')
   }
 )
 
