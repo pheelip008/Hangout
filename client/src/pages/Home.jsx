@@ -1,14 +1,16 @@
 import React from 'react'
-import MainLayout from '../layouts/MainLayout';
+import Herosection from '../features/home/HeroSection'
+import MeetingAction from '../features/home/MeetingActions'
+import RecentMeetings from '../features/home/RecentMeetings'
+import Scheduledmeetings from '../features/home/Scheduledmeetings'
 
 function Home(){
     return(
         <>
-        <div className="flex items-center justify-center text-2xl font-semibold ">
-            Home page
-        </div>
-        <MainLayout/>
-
+        <Herosection/>
+        <MeetingAction/>
+        <Scheduledmeetings/>
+        <RecentMeetings/>
         
         </>
     )

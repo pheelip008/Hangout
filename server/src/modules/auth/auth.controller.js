@@ -5,7 +5,12 @@ async function logout(req,res){
     res.json({success:true,message:"log out successful"})
 }
 async function me(req,res){
-    res.json({success:true,userId:req.userId});
+    const result=await authService.me(req.userId);
+    if(!result.success){
+        return res.status(401).json(result);
+    }   
+    return res.status(200).json(result);
+    
 }
 async function register(req,res){
     const {name,email,password}=req.body;
@@ -13,7 +18,6 @@ async function register(req,res){
     if (!result.success) {
     return res.status(400).json(result);
     }
-
     return res.status(201).json(result);
 }
 async function login(req,res){

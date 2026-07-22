@@ -22,6 +22,7 @@ model User {
   isVerified     Boolean  @default(false)
   updatedAt      DateTime @updatedAt
 
+  participations Participant[]
   meetings Meeting[]
   messages Message[]
 }
@@ -30,19 +31,31 @@ model Meeting {
   id           Int           @id @default(autoincrement())
   userID       String
   host         User          @relation(fields: [userID], references: [id])
+  roomCode     String        @unique
+  title        String?
+  status       String        @default("scheduled")
+  scheduledAt  DateTime?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  createdAt    DateTime      @default(now())
+
   participants Participant[]
+  messages     Message[]
 }
 
 model Participant {
-  id        Int     @id @default(autoincrement())
-  name      String
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   meetingID Int
-  meeting   Meeting @relation(fields: [meetingID], references: [id])
+  meeting   Meeting  @relation(fields: [meetingID], references: [id])
+  joinedAt  DateTime @default(now())
 }
 
 model Message {
   id        Int      @id @default(autoincrement())
   meetingID Int
+  meeting   Meeting  @relation(fields: [meetingID], references: [id])
   message   String
   senderID  String
   sender    User     @relation(fields: [senderID], references: [id])

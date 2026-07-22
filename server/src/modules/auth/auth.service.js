@@ -28,6 +28,14 @@ async function registerUser({ name, email, password }) {
     };
 
 }
+async function me(userId){
+    const user=await prisma.user.findUnique({
+        where:{id:userId}
+    });
+    const {password:_password,...userwop}=user;
+    return {success:true,message:"User fetched successfully",user:userwop};
+
+}
 async function loginUser({ email, password }) {
     const userex = await prisma.user.findUnique({
         where: { email: email }
@@ -57,4 +65,4 @@ async function loginUser({ email, password }) {
     }
 
 }
-module.exports = { registerUser,loginUser };
+module.exports = { registerUser,loginUser,me};
