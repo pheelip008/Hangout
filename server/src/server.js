@@ -43,7 +43,8 @@ const authRoutes = require('./modules/auth/auth.routes');
 app.use('/api/auth', authRoutes);
 const userRoutes=require('./modules/user/user.routes');
 app.use('/',userRoutes)
-
+const meetingRoutes = require('./modules/meeting/meeting.routes');
+app.use('/api/meetings', meetingRoutes);
 // app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('Hello World')

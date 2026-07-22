@@ -13,7 +13,7 @@ router.get('/settings',requireAuth,(req,res)=>{
 router.get('/profile',requireAuth,(req,res)=>{
   res.json({success:true,message:`Welcome ,${req.userId}`})
 })
-router.get('/meeting/:meetingId',requireAuth,(req,res)=>{
+router.get('/meeting/:roomCode',requireAuth,(req,res)=>{
   res.json({success:true,message:`Welcome ,${req.userId}`})
 })
 module.exports=router;
