@@ -1,9 +1,10 @@
 import React from 'react'
 import { useState,useEffect } from 'react';
+import API_BASE from '../../config';
 const RecentMeetings = () => {
   const [meetings,setMeetings]=useState([]);
   useEffect(()=>{
-    fetch('http://localhost:3000/api/meetings/recent',{
+    fetch(`${API_BASE}/api/meetings/recent`,{
       method:"GET",
       credentials:'include',
       headers:{

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import API_BASE from '../../config';
 function MeetingAction() {
     async function newmeet(){
-        const res=await fetch('http://localhost:3000/api/meetings/instant',{
+        const res=await fetch(`${API_BASE}/api/meetings/instant`,{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",
@@ -20,7 +21,7 @@ function MeetingAction() {
         if(!code){
             return
         }
-        const res=await fetch("http://localhost:3000/api/meetings/join",{
+        const res=await fetch(`${API_BASE}/api/meetings/join`,{
             method:"POST",
             credentials:"include",
             headers:{
@@ -42,7 +43,7 @@ function MeetingAction() {
     const [title, setTitle] = useState('');
     const [scheduledAt, setScheduledAt] = useState('');
     async function handleschedule(){
-        const res=await fetch("http://localhost:3000/api/meetings/schedule",{
+        const res=await fetch(`${API_BASE}/api/meetings/schedule`,{
             method:"POST",
             credentials:"include",
             headers:{

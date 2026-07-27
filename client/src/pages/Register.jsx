@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import API_BASE from '../config'
 
 const Register = () => {
     const [email,setEmail]=useState('');
@@ -7,7 +8,7 @@ const Register = () => {
       const [error, setError] = useState(null)
     
       function handleGoogleLogin() {
-        window.location.href = 'http://localhost:3000/auth/google';
+        window.location.href = `${API_BASE}/auth/google`;
       }
       
       async function handleSubmit(e) {
@@ -15,7 +16,7 @@ const Register = () => {
         setError(null);
     
         try{
-          const res=await fetch('http://localhost:3000/api/auth/register',{
+          const res=await fetch(`${API_BASE}/api/auth/register`,{
             method:"POST",
             headers:{'Content-Type':'application/json' },
             credentials:'include',
