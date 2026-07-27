@@ -1,12 +1,13 @@
 import React from 'react'
 import {useEffect,useState} from 'react';
 import { Link } from 'react-router-dom';
+import API_BASE from '../config';
 
 const Navbar = ({children}) => {
   const [user, setUser] = useState(null);
 
   useEffect(()=>{
-    fetch('http://localhost:3000/api/auth/me', { credentials: 'include' })
+    fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setUser(data.success ? data.user : null);
@@ -19,7 +20,7 @@ const Navbar = ({children}) => {
   },[]);
 
   async function handlelogout(){
-    const res=await fetch('http://localhost:3000/api/auth/logout',{
+    const res=await fetch(`${API_BASE}/api/auth/logout`,{
           method:"POST",
           headers:{'Content-Type':'application/json' },
           credentials:'include',

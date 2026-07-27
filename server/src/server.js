@@ -1,5 +1,6 @@
 const express = require('express');
-const cors = require('cors');
+const { CLIENT_ORIGIN } = require('./config/network');
+const initSocket=require('./config/socket');
 const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
@@ -8,17 +9,21 @@ const port = 3000
 const cookieParser=require('cookie-parser');
 const passport=require('./config/passport');
 const jwt=require('jsonwebtoken');
+const http = require('http');
+const cors = require('cors');
+
 
 app.use(passport.initialize());
 app.use(cookieParser());
-app.use(cors({
-  origin:"http://localhost:5173",
-  credentials:true,
-}));
+
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.use(cors({
+  origin: CLIENT_ORIGIN,
+  credentials: true
+}));
 app.get('/auth/google',passport.authenticate('google',{
   scope:['profile','email']
 }));
@@ -35,7 +40,7 @@ app.get('/auth/google/callback',
       }
     );
     res.cookie('token',token,{httpOnly:true})
-    res.redirect('http://localhost:5173/home')
+    res.redirect(`${CLIENT_ORIGIN}/home`)
   }
 )
 
@@ -50,7 +55,28 @@ app.get('/', (req, res) => {
   res.send('Hello World')
 })
 
+// app.get('/api/turn-credentials', async (req, res) => {
+//   try {
+//     const response = await fetch(`https://${process.env.METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`);
+//     const data = await response.json();
+//     res.json(data);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to fetch TURN credentials' });
+//   }
+// });
+app.get('/api/turn-credentials', async (req, res) => {
+  try {
+    const response = await fetch(`https://${process.env.METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error("Failed to fetch TURN credentials:", error);
+    res.status(500).json({ error: 'Failed to fetch TURN credentials' });
+  }
+});
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+const server = http.createServer(app);   // wrap Express app in a raw HTTP server
+const io=initSocket(server);
+server.listen(port, () => {
+   console.log(`App listening on port ${port}`)
+});

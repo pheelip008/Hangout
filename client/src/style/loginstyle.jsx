@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-
+import API_BASE from '../config'
 
 const loginstyle = () => {
   const [email,setEmail]=useState('');
@@ -8,7 +8,7 @@ const loginstyle = () => {
   const [error, setError] = useState(null)
 
   function handleGoogleLogin() {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = `${API_BASE}/auth/google`;
   }
   
   async function handleSubmit(e) {
@@ -16,7 +16,7 @@ const loginstyle = () => {
     setError(null);
 
     try{
-      const res=await fetch('http://localhost:3000/api/auth/login',{
+      const res=await fetch(`${API_BASE}/api/auth/login`,{
         method:"POST",
         headers:{'Content-Type':'application/json' },
         credentials:'include',

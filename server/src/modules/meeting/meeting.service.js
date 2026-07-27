@@ -42,23 +42,40 @@ async function startInstantMeeting(userID,titlex) {
             startedAt: new Date(),
         }
     });
+    await prisma.participant.create({
+            data:{
+                userId:userID,
+                meetingID:meeting.id
+            }
+        });
     return {success:true,meeting}
     
     
 }
 
 async function joinMeeting(userID,roomCode){
-    const meeting=await prisma.meeting.findUnique({
+    let meeting=await prisma.meeting.findUnique({
         where:{roomCode:roomCode}
     })
     if(!meeting){
         return {success:false,message:"invalid code"}
     }
+    console.log("Meeting found, current status:", meeting.status);
+    if (meeting.status === "scheduled") {
+    meeting =await prisma.meeting.update({
+        where: { id: meeting.id },
+        data: {
+            status: "ongoing",
+            startedAt: new Date()
+        }
+    });
+    console.log("Update result:", meeting.status, meeting.startedAt);
+    }
     const userx=await prisma.participant.findFirst({
         where:{userId:userID,meetingID:meeting.id}
     });
     if(!userx){
-        const participant=await prisma.participant.create({
+        await prisma.participant.create({
             data:{
                 userId:userID,
                 meetingID:meeting.id
@@ -66,7 +83,7 @@ async function joinMeeting(userID,roomCode){
         });
         return{success:true,meeting};
     }else{
-        return{success:false,message:"user already joined"}
+        return{success:true,meeting}
     }
 
     
@@ -74,8 +91,8 @@ async function joinMeeting(userID,roomCode){
 
 async function getRecentMeetings(userId){
     const meetings= await prisma.meeting.findMany({
-        where:{userID:userId},
-        orderBy:{createdAt:'desc'},
+        where:{userID:userId,status: "ongoing"},
+        orderBy:{startedAt:'desc'},
         take:3
     });
     return {success:true,meetings}
@@ -83,7 +100,7 @@ async function getRecentMeetings(userId){
 }
 async function getScheduledMeetings(userId){
     const meetings= await prisma.meeting.findMany({
-        where:{userID:userId},
+        where:{userID:userId,status: "scheduled"},
         orderBy:{scheduledAt:'asc'},
         take:3
     });
@@ -104,6 +121,12 @@ async function scheduleMeeting(userId,title,scheduledAt){
             scheduledAt: scheduledAt,
         }
     });
+    await prisma.participant.create({
+            data:{
+                userId:userId,
+                meetingID:meeting.id
+            }
+        });
     return {success:true,meeting}
 
 }
