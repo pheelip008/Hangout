@@ -22,6 +22,13 @@ function Meeting() {
     const [isScreenSharing, setScreenSharing] = useState(false);
     const localScreenPreviewRef = useRef(null);
     const [isRemoteScreenSharing, setIsRemoteScreenSharing] = useState(false);
+    const [localName, setLocalName] = useState("You");
+    const [remoteName, setRemoteName] = useState("Remote User");
+    const [startedAt, setStartedAt] = useState(null);
+    const [isAudioMuted, setIsAudioMuted] = useState(false);
+    const [isVideoMuted, setIsVideoMuted] = useState(false);
+
+
 
 
     useEffect(() => {
@@ -72,29 +79,26 @@ function Meeting() {
             };
             peerConnection.current.ontrack = (event) => {
                 console.log("ontrack fired! Streams:", event.streams);
-                const stream=event.streams[0]
-                if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+                const stream = event.streams[0];
+                
+                // Track 1: Camera (Main Video)
+                if (remoteVideoRef.current && (!remoteVideoRef.current.srcObject || remoteVideoRef.current.srcObject.id === stream.id)) {
                     remoteVideoRef.current.srcObject = stream;
-                    remoteVideoRef.current.play().catch(error => {
-                        console.log("Remote video play() failed:", error);
-                    });
                     setRemoteConnected(true);
-                }
-                else if(remoteVideoRef.current.srcObject.id!==stream.id){
-                    remoteScreenRef.current.srcObject=stream;
-                    remoteScreenRef.current.play().catch(error => {
-                        console.log("Remote screenshare play() failed:", error);
-                    });
+                } 
+                // Track 2: Screen Share
+                else if (remoteScreenRef.current && (!remoteScreenRef.current.srcObject || remoteScreenRef.current.srcObject.id === stream.id)) {
+                    remoteScreenRef.current.srcObject = stream;
                     setIsRemoteScreenSharing(true);
-                    stream.onremovetrack=()=>{
-                        if(stream.getTracks().length===0){
-                            if(remoteScreenRef.current){
-                                remoteScreenRef.current.srcObject=null;
-                                setIsRemoteScreenSharing(false);
+                    
+                    stream.onremovetrack = () => {
+                        if (stream.getTracks().length === 0) {
+                            if (remoteScreenRef.current) {
+                                remoteScreenRef.current.srcObject = null;
                             }
+                            setIsRemoteScreenSharing(false);
                         }
-
-                }
+                    };
                 }
             };
             peerConnection.current.onconnectionstatechange = () => {
@@ -104,8 +108,8 @@ function Meeting() {
                 }
             };
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
+                video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 24 } },
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
             });
             if (localvideoRef.current) {
                 localvideoRef.current.srcObject = stream;
@@ -121,16 +125,23 @@ function Meeting() {
           
         });
 
-        socket.on('user-joined', async (newUserSocketId) => {
-            console.log('user-joined received:', newUserSocketId);
-            remoteSocketId.current = newUserSocketId;
+        socket.on('meeting-info', ({ startedAt, localName }) => {
+            setStartedAt(startedAt);
+            if (localName) setLocalName(localName);
+        });
+
+        socket.on('user-joined', async ({ id, name }) => {
+            console.log('user-joined received:', id, name);
+            remoteSocketId.current = id;
+            if (name) setRemoteName(name);
             const offer = await peerConnection.current.createOffer();
             await peerConnection.current.setLocalDescription(offer);
-            socket.emit('offer', { to: newUserSocketId, offer });
-        })
-        socket.on('offer', async ({ from, offer }) => {
-            console.log('offer received from:', from);
+            socket.emit('offer', { to: id, offer });
+        });
+        socket.on('offer', async ({ from, offer, name }) => {
+            console.log('offer received from:', from, name);
             remoteSocketId.current = from;
+            if (name) setRemoteName(name);
             await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer))
             for (const candidate of pendingCandidates.current) {
                 await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
@@ -140,8 +151,9 @@ function Meeting() {
             await peerConnection.current.setLocalDescription(answer);
             socket.emit('answer', { to: from, answer })
         })
-        socket.on('answer', async ({ from, answer }) => {
-            console.log('answer received from:', from);
+        socket.on('answer', async ({ from, answer, name }) => {
+            console.log('answer received from:', from, name);
+            if (name) setRemoteName(name);
             await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
             for (const candidate of pendingCandidates.current) {
                 await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
@@ -171,6 +183,7 @@ function Meeting() {
         socket.on('user-left', (leftSocketId) => {
             if (leftSocketId === remoteSocketId.current) {
                 cleanupRemote();
+                setRemoteName("Remote User");
             }
         });
       
@@ -186,7 +199,10 @@ function Meeting() {
     }, []);
     async function startScreenShare(){
         try{
-            const stream = await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
+            const stream = await navigator.mediaDevices.getDisplayMedia({
+                video: { frameRate: { ideal: 15 } }, // Reduce framerate to prevent lag
+                audio: true
+            });
         localScreenStreamRef.current = stream;
         if (localScreenPreviewRef.current) {
             localScreenPreviewRef.current.srcObject = stream;
@@ -229,6 +245,30 @@ function Meeting() {
         }
 }
 
+    const toggleAudio = () => {
+        if (localvideoRef.current && localvideoRef.current.srcObject) {
+            const audioTrack = localvideoRef.current.srcObject.getAudioTracks()[0];
+            if (audioTrack) {
+                audioTrack.enabled = !audioTrack.enabled;
+                setIsAudioMuted(!audioTrack.enabled);
+            }
+        }
+    };
+
+    const toggleVideo = () => {
+        if (localvideoRef.current && localvideoRef.current.srcObject) {
+            const videoTrack = localvideoRef.current.srcObject.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                setIsVideoMuted(!videoTrack.enabled);
+            }
+        }
+    };
+
+    const leaveMeeting = () => {
+        window.location.href = '/home'; 
+    };
+
     return (
         <>
             <div className="h-screen w-screen bg-gray-900 overflow-hidden flex flex-col">
@@ -241,6 +281,15 @@ function Meeting() {
                 remoteScreenRef={remoteScreenRef}
                 onStartScreenShare={startScreenShare} 
                 onStopScreenShare={stopScreenShare}
+                localName={localName}
+                remoteName={remoteName}
+                startedAt={startedAt}
+                remoteConnected={remoteConnected}
+                isAudioMuted={isAudioMuted}
+                isVideoMuted={isVideoMuted}
+                onToggleAudio={toggleAudio}
+                onToggleVideo={toggleVideo}
+                onLeaveMeeting={leaveMeeting}
             />
         </div>
         </>

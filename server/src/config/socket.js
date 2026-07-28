@@ -63,6 +63,14 @@ function initSocket(server) {
           }
         });
       }
+      
+      const user = await prisma.user.findUnique({
+        where: { id: socket.userId }
+      });
+      socket.userName = user.name;
+      
+      socket.emit('meeting-info', { startedAt: meeting.startedAt, localName: socket.userName });
+
       const participant = await prisma.participant.findFirst({
         where: { userId: socket.userId, meetingID: meeting.id }
       })
@@ -72,17 +80,17 @@ function initSocket(server) {
       socket.join(roomCode);
       socket.roomCode = roomCode;
       console.log(`Socket ${socket.id} (user ${socket.userId}) joined room ${roomCode}`);
-      socket.to(roomCode).emit('user-joined', socket.id);
+      socket.to(roomCode).emit('user-joined', { id: socket.id, name: socket.userName });
 
     });
     socket.on('offer', ({ to, offer }) => {
       console.log(`relaying offer from ${socket.id} to ${to}`)
-      io.to(to).emit('offer', { from: socket.id, offer });
+      io.to(to).emit('offer', { from: socket.id, offer, name: socket.userName });
 
     });
     socket.on('answer', ({ to, answer }) => {
       console.log(`Relaying answer from ${socket.id} to ${to}`);
-      io.to(to).emit('answer', { from: socket.id, answer });
+      io.to(to).emit('answer', { from: socket.id, answer, name: socket.userName });
     });
     socket.on('ice-candidate', ({ to, candidate }) => {
       console.log(`Relaying ice-candidate from ${socket.id} to ${to}`);

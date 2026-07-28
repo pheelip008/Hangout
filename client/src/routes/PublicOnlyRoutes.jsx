@@ -2,6 +2,7 @@ import React from 'react'
 import { useState,useEffect } from 'react'
 import { Navigate } from 'react-router-dom';
 import API_BASE from '../config'
+import Loader from '../components/Loader';
 
 const PublicOnlyRoute = ({children}) => {
     const[isAuthenticated,setIsAuthenticated]=useState(null);
@@ -17,7 +18,11 @@ const PublicOnlyRoute = ({children}) => {
 
     },[]);
     if (isAuthenticated === null) {
-        return <p>Loading...</p>;
+        return (
+            <div className="flex justify-center items-center h-screen bg-gray-900">
+                <Loader />
+            </div>
+        );
     }
     if (isAuthenticated) {
         return <Navigate to="/home" />;

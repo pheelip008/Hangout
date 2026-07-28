@@ -4,7 +4,10 @@ function VideoGrid({
     localVideoRef, 
     remoteVideoRef, 
     localScreenPreviewRef, 
-    remoteScreenRef
+    remoteScreenRef,
+    localName,
+    remoteName,
+    remoteConnected
 }) {
     const isSpotlight = isLocalScreenSharing || isRemoteScreenSharing;
 
@@ -12,7 +15,7 @@ function VideoGrid({
         <div className="w-full h-full flex gap-4 transition-all duration-300">
             
             {/* MAIN STAGE (Screen Share) - Only visible when someone is sharing */}
-            <div className={`flex-1 items-center justify-center rounded-xl bg-gray-800 overflow-hidden relative border-2 border-gray-700 shadow-inner ${isSpotlight ? 'flex' : 'hidden'}`}>
+            <div className={`flex-1 items-center justify-center rounded-2xl bg-gray-950 overflow-hidden relative border border-gray-800 shadow-2xl ${isSpotlight ? 'flex' : 'hidden'}`}>
                 <div className="w-full h-full flex items-center justify-center p-2 relative">
                     
                     {/* Both preview videos are ALWAYS in the HTML, we just hide the one we aren't using! */}
@@ -42,15 +45,15 @@ function VideoGrid({
             <div className={`flex gap-4 transition-all duration-300 ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row items-center justify-center p-4'}`}>
                  
                  {/* Local Camera */}
-                 <div className={`relative flex items-center justify-center bg-black border-2 border-gray-700 rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${isSpotlight ? 'aspect-video' : 'w-1/2 aspect-video'}`}>
+                 <div className={`relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isSpotlight ? 'aspect-video' : (remoteConnected ? 'w-1/2 aspect-video' : 'w-full max-w-5xl aspect-video')} group`}>
                     <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                    <span className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-xs font-semibold">You</span>
+                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50">{localName || "You"}</span>
                  </div>
                  
                  {/* Remote Camera */}
-                 <div className={`relative flex items-center justify-center bg-black border-2 border-gray-700 rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${isSpotlight ? 'aspect-video' : 'w-1/2 aspect-video'}`}>
+                 <div className={`relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isSpotlight ? 'aspect-video' : 'w-1/2 aspect-video'} ${!remoteConnected ? 'hidden' : 'flex'} group`}>
                     <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                    <span className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-xs font-semibold">Remote User</span>
+                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50">{remoteName || "Remote User"}</span>
                  </div>
                  
             </div>

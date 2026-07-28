@@ -19,17 +19,17 @@ const RecentMeetings = () => {
     })
   },[])
   return (
-    <div className="border-5 border-black bg-gray-50 px-6 py-10">
-      <h3 className="mb-6 text-center text-2xl font-bold text-gray-900">Recent Meetings</h3>
-      <div className="flex flex-col gap-4">
+    <div className="bg-gray-950 px-6 py-12 border-t border-gray-800">
+      <h3 className="mb-8 text-center text-2xl font-bold text-white tracking-wide">Recent Meetings</h3>
+      <div className="flex flex-col gap-4 max-w-4xl mx-auto">
 
         {meetings.map((meeting)=>(
-          <div  key={meeting.id} className="flex items-center justify-between rounded-lg border-2 border-black bg-white px-6 py-4">
+          <div  key={meeting.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-xl border border-gray-800 bg-gray-900 px-6 py-5 hover:border-gray-700 transition-colors shadow-lg">
           <div>
-            <p className="font-semibold text-gray-900">{meeting.title||"Untitled Meeting"}</p>
-            <p className="text-sm text-gray-500">{new Date(meeting.createdAt).toLocaleString()}</p>
+            <p className="font-semibold text-gray-200 text-lg">{meeting.title||"Untitled Meeting"}</p>
+            <p className="text-sm text-gray-500 mt-1">{new Date(meeting.createdAt).toLocaleString()}</p>
           </div>
-          <button onClick={()=>{window.location.href=`/meeting/${meeting.roomCode}`}} className="cursor-pointer rounded-lg border-2 border-blue-900 bg-blue-900 px-4 py-2 text-white hover:bg-blue-800">Rejoin</button>
+          <button onClick={()=>{window.location.href=`/meeting/${meeting.roomCode}`}} className="mt-4 sm:mt-0 cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-5 py-2 text-[#00FFFF] font-semibold hover:bg-gray-700 hover:text-white transition-colors active:scale-95">Rejoin</button>
         </div>
         ))}
 

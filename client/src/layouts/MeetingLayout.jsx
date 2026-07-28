@@ -11,6 +11,7 @@ function MeetingLayout(props) {
         <div className="flex flex-col h-full w-full bg-gray-900 text-white">
             <MeetingHeader 
                 togglePanel={() => setIsPanelOpen(!isPanelOpen)} 
+                startedAt={props.startedAt}
             />
             
             <div className="flex flex-1 overflow-hidden p-4 gap-4">
@@ -19,8 +20,12 @@ function MeetingLayout(props) {
                     <VideoGrid {...props} />
                 </main>
                 {isPanelOpen && (
-                    <aside className="w-80 flex flex-col border-l border-gray-700 pl-4 overflow-y-auto">
-                        <ParticipantPanel/>
+                    <aside className="w-80 flex flex-col border-l border-gray-700 overflow-y-auto">
+                        <ParticipantPanel
+                            localName={props.localName}
+                            remoteName={props.remoteName}
+                            remoteConnected={props.remoteConnected}
+                        />
                     </aside>
                 )}
             </div>
@@ -28,6 +33,11 @@ function MeetingLayout(props) {
                 isScreenSharing={props.isLocalScreenSharing} 
                 onStartScreenShare={props.onStartScreenShare} 
                 onStopScreenShare={props.onStopScreenShare}
+                isAudioMuted={props.isAudioMuted}
+                isVideoMuted={props.isVideoMuted}
+                onToggleAudio={props.onToggleAudio}
+                onToggleVideo={props.onToggleVideo}
+                onLeaveMeeting={props.onLeaveMeeting}
             />
         </div>
     )
