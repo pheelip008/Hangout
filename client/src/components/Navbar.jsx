@@ -36,15 +36,15 @@ const Navbar = ({children}) => {
     }
   }
   return (
-    <nav className="flex items-center justify-between border-5 border-black bg-blue-900 px-6 py-4">
-      <h1 className="text-xl font-bold text-white">Hangout!</h1>
+    <nav className="flex items-center justify-between border-b border-gray-800 bg-gray-950 px-6 py-4 shadow-md">
+      <h1 className="text-2xl font-bold text-[#00FFFF] tracking-wider">Hangout!</h1>
       <div className="flex gap-6">
         {children}
       </div>
       {
         user&&<div className="flex gap-3">
-        <div className='rounded-lg border-2 border-white bg-white px-4 py-2 text-blue-900'>{user?.name}</div>
-        <button className="cursor-pointer rounded-lg border-2 border-white bg-white px-4 py-2 text-blue-900 hover:bg-gray-200"
+        <div className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-gray-300'>{user?.name}</div>
+        <button className="cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50 transition-all"
         onClick={handlelogout}
         >Log out</button>
       </div>
@@ -52,10 +52,10 @@ const Navbar = ({children}) => {
       {
         !user && 
         <div className="flex gap-3">
-        <button className='rounded-lg border-2 border-white bg-white px-4 py-2 text-blue-900 hover:bg-gray-200'>
+        <button className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#00FFFF] transition-all'>
           <Link to="/login">Login</Link>
           </button>
-        <button className='rounded-lg border-2 border-white bg-white px-4 py-2 text-blue-900 hover:bg-gray-200'>
+        <button className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#ff0] transition-all'>
           <Link to="/register">Register</Link>
         </button>
       </div>

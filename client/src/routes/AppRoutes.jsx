@@ -19,7 +19,7 @@ function AppRoutes() {
                 <Route path="/error" element={<Error />} />
                 <Route path="/register" element={<Register />} />
                 <Route element={<MainLayout/>}> 
-                        <Route path="/landing" element={<PublicOnlyRoute><Landing/></PublicOnlyRoute>}/>
+                        <Route path="/" element={<PublicOnlyRoute><Landing/></PublicOnlyRoute>}/>
                         <Route path ="/home" element={<ProtectedRoute><Home/></ProtectedRoute>}/>
                 </Route>
                 

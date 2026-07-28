@@ -35,12 +35,12 @@ const loginstyle = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg border-5 border-black bg-white p-8">
-        <h1 className="mb-6 text-center text-3xl font-bold text-gray-900">Log in to Hangout</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-950">
+      <div className="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-900 p-8 shadow-2xl">
+        <h1 className="mb-6 text-center text-3xl font-bold text-white">Log in to Hangout</h1>
 
         <button
-          className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border-2 border-black bg-white px-4 py-3 font-semibold text-gray-800 hover:bg-gray-100 active:bg-gray-200"
+          className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 font-semibold text-gray-300 hover:bg-gray-700 hover:text-[#00FFFF] hover:border-[#00FFFF]/50 active:bg-gray-600 transition-all duration-300"
           onClick={handleGoogleLogin}
         >
           {/* <span className="text-xl"><G></span></span> */}
@@ -48,9 +48,9 @@ const loginstyle = () => {
         </button>
 
         <div className="my-6 flex items-center gap-4">
-          <hr className="flex-1 border-gray-300" />
+          <hr className="flex-1 border-gray-800" />
           <span className="text-sm text-gray-500">or</span>
-          <hr className="flex-1 border-gray-300" />
+          <hr className="flex-1 border-gray-800" />
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -60,7 +60,7 @@ const loginstyle = () => {
             required
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
-            className="rounded-lg border-2 border-black px-4 py-3 outline-none focus:border-blue-900"
+            className="rounded-lg border border-gray-700 bg-gray-800 text-white px-4 py-3 outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] placeholder-gray-500 transition-all"
           />
           <input
             type="password"
@@ -68,20 +68,20 @@ const loginstyle = () => {
             required
             value={password}
             onChange={(e)=>setPassword(e.target.value)}
-            className="rounded-lg border-2 border-black px-4 py-3 outline-none focus:border-blue-900"
+            className="rounded-lg border border-gray-700 bg-gray-800 text-white px-4 py-3 outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] placeholder-gray-500 transition-all"
           />
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"
-            className="cursor-pointer rounded-lg border-2 border-blue-900 bg-blue-900 px-4 py-3 font-semibold text-white hover:bg-blue-800 active:bg-blue-950"
+            className="mt-2 cursor-pointer rounded-lg border border-[#00FFFF] bg-transparent px-4 py-3 font-bold text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(0,255,255,0.1)] hover:shadow-[0_0_20px_rgba(0,255,255,0.4)]"
           >
             Log In
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{' '}
-          <a href="/register" className="font-semibold text-blue-900 hover:underline">Sign up</a>
+          <a href="/register" className="font-semibold text-[#00FFFF] hover:text-white transition-colors">Sign up</a>
         </p>
       </div>
     </div>
