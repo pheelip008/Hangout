@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 const app = express();
-const port = 3000
+const port = process.env.PORT || 3000
 const cookieParser=require('cookie-parser');
 const passport=require('./config/passport');
 const jwt=require('jsonwebtoken');
@@ -39,7 +39,12 @@ app.get('/auth/google/callback',
         expiresIn:process.env.JWT_EXPIRES_IN
       }
     );
-    res.cookie('token',token,{httpOnly:true})
+    res.cookie('token',token,{
+      httpOnly:true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
     res.redirect(`${CLIENT_ORIGIN}/home`)
   }
 )
