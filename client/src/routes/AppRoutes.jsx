@@ -1,9 +1,9 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Home from "../pages/home";
-import Meeting from "../pages/meeting";
-import Login from "../pages/login"
-import Landing from "../pages/landing"
+import Home from "../pages/Home";
+import Meeting from "../pages/Meeting";
+import Login from "../pages/Login"
+import Landing from "../pages/Landing"
 import Error from "../pages/Error404";
 import Register from "../pages/Register";
 import ProtectedRoute from "../routes/ProtectedRoute"
