@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const { CLIENT_ORIGIN } = require('./config/network');
 const initSocket=require('./config/socket');
 const helmet = require('helmet');
 const morgan = require('morgan');
-require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000
 const cookieParser=require('cookie-parser');

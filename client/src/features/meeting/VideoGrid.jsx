@@ -2,14 +2,25 @@ function VideoGrid({
     isLocalScreenSharing, 
     isRemoteScreenSharing,
     localVideoRef, 
-    remoteVideoRef, 
+    participants,
+    remoteVideoRefs,
     localScreenPreviewRef, 
     remoteScreenRef,
-    localName,
-    remoteName,
-    remoteConnected
+    localName
 }) {
     const isSpotlight = isLocalScreenSharing || isRemoteScreenSharing;
+
+    const remoteParticipants = Object.values(participants || {});
+    const totalTiles = 1 + remoteParticipants.length;
+
+    const getTileWidthClass = () => {
+        if (isSpotlight) return 'w-full';
+        if (totalTiles === 1) return 'w-full max-w-5xl';
+        if (totalTiles === 2) return 'w-[calc(50%-0.5rem)] max-w-3xl';
+        return 'w-[calc(50%-0.5rem)] max-w-2xl';
+    };
+
+    const tileClass = `relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 aspect-video group ${getTileWidthClass()}`;
 
     return (
         <div className="w-full h-full flex gap-4 transition-all duration-300">
@@ -38,23 +49,40 @@ function VideoGrid({
                 </div>
             </div>
 
-            {/* CAMERAS GRID / SIDEBAR 
-                If NO ONE is sharing -> This is a full-width horizontal row (50% each)
-                If SOMEONE is sharing -> This magically squishes into a 64px vertical sidebar on the right!
-            */}
-            <div className={`flex gap-4 transition-all duration-300 ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row items-center justify-center p-4'}`}>
+            {/* CAMERAS GRID / SIDEBAR */}
+            <div className={`flex gap-4 transition-all duration-300 content-center ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row flex-wrap items-center justify-center p-4'}`}>
                  
                  {/* Local Camera */}
-                 <div className={`relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isSpotlight ? 'aspect-video' : (remoteConnected ? 'w-1/2 aspect-video' : 'w-full max-w-5xl aspect-video')} group`}>
+                 <div className={tileClass}>
                     <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50">{localName || "You"}</span>
+                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50 truncate max-w-[80%]">{localName || "You"}</span>
                  </div>
                  
-                 {/* Remote Camera */}
-                 <div className={`relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isSpotlight ? 'aspect-video' : 'w-1/2 aspect-video'} ${!remoteConnected ? 'hidden' : 'flex'} group`}>
-                    <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50">{remoteName || "Remote User"}</span>
-                 </div>
+                 {/* Remote Cameras */}
+                 {remoteParticipants.map(p => (
+                     <div key={p.id} className={tileClass}>
+                        <video 
+                            ref={(el) => {
+                                if (el) {
+                                    if (remoteVideoRefs && remoteVideoRefs.current) {
+                                        remoteVideoRefs.current[p.id] = el;
+                                    }
+                                    if (p.stream && el.srcObject !== p.stream) {
+                                        el.srcObject = p.stream;
+                                    }
+                                } else {
+                                    if (remoteVideoRefs && remoteVideoRefs.current) {
+                                        delete remoteVideoRefs.current[p.id];
+                                    }
+                                }
+                            }}
+                            autoPlay 
+                            playsInline 
+                            className="w-full h-full object-cover" 
+                        />
+                        <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50 truncate max-w-[80%]">{p.name || "Remote User"}</span>
+                     </div>
+                 ))}
                  
             </div>
         </div>

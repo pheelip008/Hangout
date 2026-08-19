@@ -8,11 +8,11 @@ function ValidateRegister(req,res,next){
                 message:"All fields are required"
             });
         }
-        const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex=/^[a-zA-Z0-9._%+-]+@gmail\.com$/;
         if(!emailRegex.test(email)){
             return res.status(400).json({
                 success:false,
-                message:"Invalid email format"
+                message:"Invalid email format. Only Gmail is allowed"
 
             });
         }

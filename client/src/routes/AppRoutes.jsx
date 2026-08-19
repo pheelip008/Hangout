@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import Meeting from "../pages/Meeting";
 import Login from "../pages/Login"
 import Landing from "../pages/Landing"
+import Game from "../pages/Game"
 import Error from "../pages/Error404";
 import Register from "../pages/Register";
 import ProtectedRoute from "../routes/ProtectedRoute"
@@ -15,6 +16,7 @@ function AppRoutes() {
             <Routes>
                 {/* <Route path="/" element={<Home />} /> */}
                 <Route path="/meeting/:roomCode" element={<ProtectedRoute><Meeting /></ProtectedRoute>} />
+                <Route path="/game/:roomCode" element={<ProtectedRoute><Game /></ProtectedRoute>} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/error" element={<Error />} />
                 <Route path="/register" element={<Register />} />

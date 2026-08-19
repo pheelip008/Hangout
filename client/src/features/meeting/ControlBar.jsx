@@ -1,4 +1,5 @@
 function ControlBar({
+    roomCode,
     isScreenSharing, 
     onStartScreenShare, 
     onStopScreenShare,
@@ -6,7 +7,8 @@ function ControlBar({
     isVideoMuted,
     onToggleAudio,
     onToggleVideo,
-    onLeaveMeeting
+    onLeaveMeeting,
+    onTogglePlayground
 }) {
     const handleScreenShareClick = async() => {
         try{
@@ -54,6 +56,13 @@ function ControlBar({
                 </button>
                 
                 <button className="cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-5 py-2.5 transition-all font-semibold text-white hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50">Raise Hand</button>
+                
+                <button
+                    onClick={onTogglePlayground}
+                    className="cursor-pointer rounded-lg border border-indigo-500 bg-indigo-600 px-5 py-2.5 transition-all font-semibold text-white hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                >
+                    Playground
+                </button>
                 
                 <button 
                     onClick={onLeaveMeeting}

@@ -9,21 +9,22 @@ import { useRef,useState } from 'react';
 
 
 function Meeting() {
+    const socketRef = useRef(null);
     const localvideoRef = useRef(null);
-    const peerConnection = useRef(null);
-    const remoteSocketId = useRef(null);
+    const peerConnections = useRef({});
+    const pendingCandidates = useRef({});
+    const participantCameraStreams = useRef({});
+    const [participants, setParticipants] = useState({});
+    
     const { roomCode } = useParams();
-    const remoteVideoRef = useRef(null);
-    const pendingCandidates = useRef([]);
-    const [remoteConnected, setRemoteConnected] = useState(false);
     const remoteScreenRef = useRef(null);
     const localScreenStreamRef = useRef(null);
-    const screenSenderRef = useRef(null);
+    const screenSendersRef = useRef({});
     const [isScreenSharing, setScreenSharing] = useState(false);
     const localScreenPreviewRef = useRef(null);
     const [isRemoteScreenSharing, setIsRemoteScreenSharing] = useState(false);
     const [localName, setLocalName] = useState("You");
-    const [remoteName, setRemoteName] = useState("Remote User");
+    const turnCredentialsRef = useRef(null);
     const [startedAt, setStartedAt] = useState(null);
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoMuted, setIsVideoMuted] = useState(false);
@@ -35,6 +36,7 @@ function Meeting() {
         const socket = io(API_BASE, {
             withCredentials: true
         });
+        socketRef.current = socket;
         async function getTurnCredentials() {
             const res = await fetch(`${API_BASE}/api/turn-credentials`);
             const data = await res.json();
@@ -42,82 +44,97 @@ function Meeting() {
         }
         async function fetchmedia() {
             const turnCredentials = await getTurnCredentials();
-            peerConnection.current = new RTCPeerConnection({
+            turnCredentialsRef.current = turnCredentials;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 24 } },
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+                });
+                if (localvideoRef.current) {
+                    localvideoRef.current.srcObject = stream;
+                }
+            } catch (err) {
+                console.error("Failed to get local media", err);
+            }
+        }
+
+        function createPeerConnection(id, name) {
+            if (peerConnections.current[id]) return peerConnections.current[id];
+
+            const pc = new RTCPeerConnection({
                 iceServers: [
-                    ...turnCredentials,
+                    ...(turnCredentialsRef.current || []),
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
                 ]
             });
-            peerConnection.current.onnegotiationneeded=async ()=>{
-                if(!remoteSocketId.current){
-                    return;
-                }
-                try{
-                    const offer=await peerConnection.current.createOffer();
-                    await peerConnection.current.setLocalDescription(offer);
-                    socket.emit('offer',{to:remoteSocketId.current,offer});
-                }
-                catch(error){
-                    console.error("Renegotiation error", error);
-                }
-                
+            peerConnections.current[id] = pc;
+            pendingCandidates.current[id] = pendingCandidates.current[id] || [];
 
+            // Add local camera tracks immediately
+            if (localvideoRef.current && localvideoRef.current.srcObject) {
+                localvideoRef.current.srcObject.getTracks().forEach(track => {
+                    pc.addTrack(track, localvideoRef.current.srcObject);
+                });
             }
 
-            
-            peerConnection.current.onicecandidate = (event) => {
-                if (event.candidate) {
-                    console.log("ICE candidate type:", event.candidate.type, "|", event.candidate.candidate);
+            // Add local screen share tracks if active
+            if (localScreenStreamRef.current) {
+                if (!screenSendersRef.current[id]) screenSendersRef.current[id] = [];
+                localScreenStreamRef.current.getTracks().forEach(track => {
+                    const sender = pc.addTrack(track, localScreenStreamRef.current);
+                    screenSendersRef.current[id].push(sender);
+                });
+            }
+
+            pc.onnegotiationneeded = async () => {
+                try {
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    socket.emit('offer', { to: id, offer });
+                } catch (error) {
+                    console.error("Renegotiation error", error);
                 }
-                if (event.candidate && remoteSocketId.current) {
+            };
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
                     socket.emit('ice-candidate', {
-                        to: remoteSocketId.current,
+                        to: id,
                         candidate: event.candidate
                     });
                 }
             };
-            peerConnection.current.ontrack = (event) => {
-                console.log("ontrack fired! Streams:", event.streams);
-                const stream = event.streams[0];
-                
-                // Track 1: Camera (Main Video)
-                if (remoteVideoRef.current && (!remoteVideoRef.current.srcObject || remoteVideoRef.current.srcObject.id === stream.id)) {
-                    remoteVideoRef.current.srcObject = stream;
-                    setRemoteConnected(true);
-                } 
-                // Track 2: Screen Share
-                else if (remoteScreenRef.current && (!remoteScreenRef.current.srcObject || remoteScreenRef.current.srcObject.id === stream.id)) {
-                    remoteScreenRef.current.srcObject = stream;
-                    setIsRemoteScreenSharing(true);
-                    
-                    stream.onremovetrack = () => {
-                        if (stream.getTracks().length === 0) {
-                            if (remoteScreenRef.current) {
-                                remoteScreenRef.current.srcObject = null;
-                            }
-                            setIsRemoteScreenSharing(false);
-                        }
-                    };
-                }
-            };
-            peerConnection.current.onconnectionstatechange = () => {
-                console.log("Connection state changed:", peerConnection.current.connectionState);
-                if (["disconnected", "failed", "closed"].includes(peerConnection.current.connectionState)) {
-                    cleanupRemote();
-                }
-            };
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 24 } },
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-            });
-            if (localvideoRef.current) {
-                localvideoRef.current.srcObject = stream;
-            }
-            stream.getTracks().forEach(track => {
-                peerConnection.current.addTrack(track, stream);
-            });
 
+            pc.ontrack = (event) => {
+                const stream = event.streams[0];
+                if (!participantCameraStreams.current[id] || participantCameraStreams.current[id].id === stream.id) {
+                    participantCameraStreams.current[id] = stream;
+                    setParticipants(prev => ({
+                        ...prev,
+                        [id]: { ...(prev[id] || { id, name }), stream }
+                    }));
+                } else {
+                    if (remoteScreenRef.current && (!remoteScreenRef.current.srcObject || remoteScreenRef.current.srcObject.id === stream.id)) {
+                        remoteScreenRef.current.srcObject = stream;
+                        setIsRemoteScreenSharing(true);
+                        stream.onremovetrack = () => {
+                            if (stream.getTracks().length === 0) {
+                                if (remoteScreenRef.current) remoteScreenRef.current.srcObject = null;
+                                setIsRemoteScreenSharing(false);
+                            }
+                        };
+                    }
+                }
+            };
+
+            pc.onconnectionstatechange = () => {
+                if (["disconnected", "failed", "closed"].includes(pc.connectionState)) {
+                    cleanupRemote(id);
+                }
+            };
+
+            return pc;
         }
 
         socket.on('connect', () => {
@@ -132,40 +149,53 @@ function Meeting() {
 
         socket.on('user-joined', async ({ id, name }) => {
             console.log('user-joined received:', id, name);
-            remoteSocketId.current = id;
-            if (name) setRemoteName(name);
-            const offer = await peerConnection.current.createOffer();
-            await peerConnection.current.setLocalDescription(offer);
+            const pc = createPeerConnection(id, name);
+            setParticipants(prev => ({ ...prev, [id]: { ...(prev[id] || {}), id, name } }));
+            
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
             socket.emit('offer', { to: id, offer });
         });
+        
         socket.on('offer', async ({ from, offer, name }) => {
             console.log('offer received from:', from, name);
-            remoteSocketId.current = from;
-            if (name) setRemoteName(name);
-            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer))
-            for (const candidate of pendingCandidates.current) {
-                await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+            const pc = createPeerConnection(from, name);
+            setParticipants(prev => ({ ...prev, [from]: { ...(prev[from] || {}), id: from, name } }));
+            
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            if (pendingCandidates.current[from]) {
+                for (const candidate of pendingCandidates.current[from]) {
+                    await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+                pendingCandidates.current[from] = [];
             }
-            pendingCandidates.current = [];
-            const answer = await peerConnection.current.createAnswer();
-            await peerConnection.current.setLocalDescription(answer);
-            socket.emit('answer', { to: from, answer })
-        })
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit('answer', { to: from, answer });
+        });
+        
         socket.on('answer', async ({ from, answer, name }) => {
             console.log('answer received from:', from, name);
-            if (name) setRemoteName(name);
-            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-            for (const candidate of pendingCandidates.current) {
-                await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+            const pc = createPeerConnection(from, name);
+            setParticipants(prev => ({ ...prev, [from]: { ...(prev[from] || {}), id: from, name } }));
+            
+            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+            if (pendingCandidates.current[from]) {
+                for (const candidate of pendingCandidates.current[from]) {
+                    await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+                pendingCandidates.current[from] = [];
             }
-            pendingCandidates.current = [];
         });
+        
         socket.on('ice-candidate', async ({ from, candidate }) => {
             console.log('ice-candidate received from:', from);
-            if (peerConnection.current.remoteDescription) {
-                await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+            const pc = peerConnections.current[from];
+            if (pc && pc.remoteDescription) {
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
             } else {
-                pendingCandidates.current.push(candidate);
+                if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
+                pendingCandidates.current[from].push(candidate);
             }
         });
         socket.on('error', (message) => {
@@ -173,18 +203,25 @@ function Meeting() {
         });
 
 
-        function cleanupRemote() {
-            if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = null;
+        function cleanupRemote(id) {
+            const pc = peerConnections.current[id];
+            if (pc) {
+                pc.close();
+                delete peerConnections.current[id];
             }
-            setRemoteConnected(false);
-            remoteSocketId.current = null;
+            delete pendingCandidates.current[id];
+            delete participantCameraStreams.current[id];
+            if (screenSendersRef.current[id]) delete screenSendersRef.current[id];
+            
+            setParticipants(prev => {
+                const newParticipants = { ...prev };
+                delete newParticipants[id];
+                return newParticipants;
+            });
         }
+        
         socket.on('user-left', (leftSocketId) => {
-            if (leftSocketId === remoteSocketId.current) {
-                cleanupRemote();
-                setRemoteName("Remote User");
-            }
+            cleanupRemote(leftSocketId);
         });
       
         async function initializeMeeting() {
@@ -195,6 +232,7 @@ function Meeting() {
 
         return () => {
             socket.disconnect();
+            socketRef.current = null;
         };
     }, []);
     async function startScreenShare(){
@@ -206,19 +244,23 @@ function Meeting() {
         localScreenStreamRef.current = stream;
         if (localScreenPreviewRef.current) {
             localScreenPreviewRef.current.srcObject = stream;
-            
         }
-        screenSenderRef.current = [];
+        
+        // Add screen track to all active peer connections
+        Object.keys(peerConnections.current).forEach(id => {
+            const pc = peerConnections.current[id];
+            if (!screenSendersRef.current[id]) screenSendersRef.current[id] = [];
             stream.getTracks().forEach(track => {
-                const sender = peerConnection.current.addTrack(track, stream);
-                screenSenderRef.current.push(sender);
+                const sender = pc.addTrack(track, stream);
+                screenSendersRef.current[id].push(sender);
                 
                 track.onended = () => {
                     stopScreenShare();
                 };
             });
-            
-            setScreenSharing(true);
+        });
+        
+        setScreenSharing(true);
         }catch(error){
             console.error("error sharing the screen",error);
         }
@@ -226,15 +268,15 @@ function Meeting() {
         
     }
 
-    async function stopScreenShare(){
-        if(screenSenderRef.current&&peerConnection.current){
-            screenSenderRef.current.forEach(sender => {
-                peerConnection.current.removeTrack(sender);
-            });
-            screenSenderRef.current=null;
-            
-            
-    }
+    async function stopScreenShare() {
+        Object.keys(screenSendersRef.current).forEach(id => {
+            const senders = screenSendersRef.current[id];
+            const pc = peerConnections.current[id];
+            if (pc && senders) {
+                senders.forEach(sender => pc.removeTrack(sender));
+            }
+        });
+        screenSendersRef.current = {};
     if(localScreenStreamRef.current){
         localScreenStreamRef.current.getTracks().forEach(track=>track.stop());
         localScreenStreamRef.current=null;
@@ -273,23 +315,24 @@ function Meeting() {
         <>
             <div className="h-screen w-screen bg-gray-900 overflow-hidden flex flex-col">
             <MeetingLayout 
+                roomCode={roomCode}
                 isLocalScreenSharing={isScreenSharing}
                 isRemoteScreenSharing={isRemoteScreenSharing}
                 localVideoRef={localvideoRef}
-                remoteVideoRef={remoteVideoRef}
                 localScreenPreviewRef={localScreenPreviewRef}
                 remoteScreenRef={remoteScreenRef}
                 onStartScreenShare={startScreenShare} 
                 onStopScreenShare={stopScreenShare}
                 localName={localName}
-                remoteName={remoteName}
                 startedAt={startedAt}
-                remoteConnected={remoteConnected}
                 isAudioMuted={isAudioMuted}
                 isVideoMuted={isVideoMuted}
                 onToggleAudio={toggleAudio}
                 onToggleVideo={toggleVideo}
                 onLeaveMeeting={leaveMeeting}
+                socketRef={socketRef}
+                localScreenStreamRef={localScreenStreamRef}
+                participants={participants}
             />
         </div>
         </>
