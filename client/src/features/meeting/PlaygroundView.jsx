@@ -48,7 +48,7 @@ function PlaygroundView({
                 remoteCameraStreams
             });
         }
-    }, [localCameraStream, participants]);
+    }, [localCameraStream, participants, isGameLoaded]);
 
     useEffect(() => {
         let mounted = true;

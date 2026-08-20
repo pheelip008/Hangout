@@ -162,6 +162,11 @@ export class RemotePlayerSystem {
 
         this.players.set(id, player);
 
+        // Eagerly apply camera stream if available (material exists even before model loads)
+        if (this.remoteCameraStreams && this.remoteCameraStreams[id]) {
+            this._applyCameraStream(player, this.remoteCameraStreams[id]);
+        }
+
         if (this.baseModel) {
             this._instantiateModel(player);
         }
@@ -330,6 +335,9 @@ export class RemotePlayerSystem {
 
         if (player.videoElement.srcObject !== stream) {
             player.videoElement.srcObject = stream;
+            player.videoElement.play().catch(err => {
+                console.warn('[REMOTE FACE VIDEO] video.play() failed:', err);
+            });
         }
 
         if (!player.videoTexture) {
