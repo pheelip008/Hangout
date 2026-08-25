@@ -23,6 +23,8 @@ function Meeting() {
     const [isScreenSharing, setScreenSharing] = useState(false);
     const localScreenPreviewRef = useRef(null);
     const [isRemoteScreenSharing, setIsRemoteScreenSharing] = useState(false);
+    const makingOffer = useRef({});
+    const ignoreOffer = useRef({});
     const [localName, setLocalName] = useState("You");
     const turnCredentialsRef = useRef(null);
     const [startedAt, setStartedAt] = useState(null);
@@ -89,11 +91,13 @@ function Meeting() {
 
             pc.onnegotiationneeded = async () => {
                 try {
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    socket.emit('offer', { to: id, offer });
+                    makingOffer.current[id] = true;
+                    await pc.setLocalDescription();
+                    socket.emit('offer', { to: id, offer: pc.localDescription });
                 } catch (error) {
                     console.error("Renegotiation error", error);
+                } finally {
+                    makingOffer.current[id] = false;
                 }
             };
 
@@ -159,16 +163,28 @@ function Meeting() {
             const pc = createPeerConnection(from, name);
             setParticipants(prev => ({ ...prev, [from]: { ...(prev[from] || {}), id: from, name } }));
             
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
-            if (pendingCandidates.current[from]) {
-                for (const candidate of pendingCandidates.current[from]) {
-                    await pc.addIceCandidate(new RTCIceCandidate(candidate));
-                }
-                pendingCandidates.current[from] = [];
+            const polite = socket.id > from;
+            const offerCollision = makingOffer.current[from] || pc.signalingState !== "stable";
+            
+            ignoreOffer.current[from] = !polite && offerCollision;
+            if (ignoreOffer.current[from]) {
+                console.log('Ignoring colliding offer from:', from);
+                return;
             }
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            socket.emit('answer', { to: from, answer });
+
+            try {
+                await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                if (pendingCandidates.current[from]) {
+                    for (const candidate of pendingCandidates.current[from]) {
+                        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                    }
+                    pendingCandidates.current[from] = [];
+                }
+                await pc.setLocalDescription();
+                socket.emit('answer', { to: from, answer: pc.localDescription });
+            } catch (err) {
+                console.error("Failed to handle offer", err);
+            }
         });
         
         socket.on('answer', async ({ from, answer, name }) => {
@@ -188,11 +204,19 @@ function Meeting() {
         socket.on('ice-candidate', async ({ from, candidate }) => {
             console.log('ice-candidate received from:', from);
             const pc = peerConnections.current[from];
-            if (pc && pc.remoteDescription) {
-                await pc.addIceCandidate(new RTCIceCandidate(candidate));
-            } else {
-                if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
-                pendingCandidates.current[from].push(candidate);
+            try {
+                if (pc) {
+                    if (ignoreOffer.current[from]) return;
+                    
+                    if (pc.remoteDescription) {
+                        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                    } else {
+                        if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
+                        pendingCandidates.current[from].push(candidate);
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to add ICE candidate', err);
             }
         });
         socket.on('error', (message) => {

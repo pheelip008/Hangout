@@ -36,6 +36,7 @@ function PlaygroundView({
         Object.values(participants).forEach(p => {
             if (p.stream) {
                 remoteCameraStreams[p.id] = p.stream;
+                console.log(`[PlaygroundView] remoteCameraStreams[${p.id}].id = ${p.stream.id} (local is ${localCameraStream?.id})`);
             }
         });
     }
