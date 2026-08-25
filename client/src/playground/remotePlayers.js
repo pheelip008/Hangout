@@ -163,7 +163,9 @@ export class RemotePlayerSystem {
         this.players.set(id, player);
 
         // Eagerly apply camera stream if available (material exists even before model loads)
+        console.log(`[REMOTE FACE] addPlayer ${id}: remoteCameraStreams keys=`, Object.keys(this.remoteCameraStreams || {}), `has stream for this id:`, !!(this.remoteCameraStreams && this.remoteCameraStreams[id]));
         if (this.remoteCameraStreams && this.remoteCameraStreams[id]) {
+            console.log(`[REMOTE FACE] addPlayer ${id}: applying stream ${this.remoteCameraStreams[id].id}`);
             this._applyCameraStream(player, this.remoteCameraStreams[id]);
         }
 
@@ -309,8 +311,11 @@ export class RemotePlayerSystem {
 
     updateCameraStreams(streams) {
         this.remoteCameraStreams = streams;
+        console.log('[REMOTE FACE] updateCameraStreams called, keys:', Object.keys(streams), 'playerIds:', Array.from(this.players.keys()));
         for (const [id, player] of this.players.entries()) {
-            this._applyCameraStream(player, streams[id] || null);
+            const stream = streams[id] || null;
+            console.log(`[REMOTE FACE] Player ${id}: stream=${stream?.id || 'null'}`);
+            this._applyCameraStream(player, stream);
         }
     }
 
