@@ -149,12 +149,10 @@ function Meeting() {
 
         socket.on('user-joined', async ({ id, name }) => {
             console.log('user-joined received:', id, name);
-            const pc = createPeerConnection(id, name);
+            createPeerConnection(id, name);
             setParticipants(prev => ({ ...prev, [id]: { ...(prev[id] || {}), id, name } }));
-            
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            socket.emit('offer', { to: id, offer });
+            // Note: onnegotiationneeded fires automatically after addTrack in createPeerConnection,
+            // which handles creating and sending the offer. No manual offer needed here.
         });
         
         socket.on('offer', async ({ from, offer, name }) => {
