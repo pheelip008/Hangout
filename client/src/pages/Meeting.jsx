@@ -151,8 +151,7 @@ function Meeting() {
             console.log('user-joined received:', id, name);
             createPeerConnection(id, name);
             setParticipants(prev => ({ ...prev, [id]: { ...(prev[id] || {}), id, name } }));
-            // Note: onnegotiationneeded fires automatically after addTrack in createPeerConnection,
-            // which handles creating and sending the offer. No manual offer needed here.
+            
         });
         
         socket.on('offer', async ({ from, offer, name }) => {

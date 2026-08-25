@@ -37,7 +37,7 @@ const Navbar = ({children}) => {
   }
   return (
     <nav className="flex items-center justify-between border-b border-gray-800 bg-gray-950 px-6 py-4 shadow-md">
-      <h1 className="text-2xl font-bold text-[#00FFFF] tracking-wider">Hangout!</h1>
+      <img src="/hangout1.png" alt="Hangout Logo" className="h-10" />
       <div className="flex gap-6">
         {children}
       </div>

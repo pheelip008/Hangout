@@ -30,7 +30,7 @@ function MeetingHeader({ togglePanel, startedAt }) {
 
     return (
         <header className="flex justify-between items-center p-4 bg-gray-950 border-b border-gray-800 shadow-md">
-            <div className="text-2xl font-bold text-[#00FFFF] tracking-wider">Hangout!</div>
+            <img src="/hangout1.png" alt="Hangout Logo" className="h-10" />
             
             <div className="flex items-center gap-6">
                 <span className="text-lg font-mono text-[#2a2c3a] tracking-widest bg-gray-900 px-3 py-1 rounded-md border border-gray-800">{timeString}</span>
