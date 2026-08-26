@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { GAME_ASSET_BASE_URL } from './config.js';
 import { networkState, requestSit, leaveSeat } from './network.js';
@@ -20,6 +21,8 @@ export const FACE_SCREEN_HEIGHT = 0.35;
 export const FACE_SCREEN_DEPTH_OFFSET = 0.01;
 // Scale compensation: bone world scale is ~0.01, so mesh must be 100x to appear at intended size
 export const FACE_SCREEN_BONE_SCALE = 100;
+// Tagged so the remote clone template can be scrubbed of any stray face plane
+export const FACE_SCREEN_NAME = 'FaceScreen';
 
 export class Player {
     constructor(camera, scene, colliders = [], interactables = [], raycastMeshes = [], container = document.body, uiPrompt = null, playerName = "Local Player", localCameraStream = null) {
@@ -113,6 +116,7 @@ export class Player {
             side: THREE.FrontSide
         });
         this.faceScreenMesh = new THREE.Mesh(geometry, this.faceScreenMaterial);
+        this.faceScreenMesh.name = FACE_SCREEN_NAME;
         
         // Position relative to body root
         this.faceScreenMesh.position.copy(FACE_SCREEN_POSITION);
@@ -167,6 +171,12 @@ export class Player {
             this.characterMesh.add(model);
             
             const headBone = model.getObjectByName('Head');
+
+            // Snapshot the rig BEFORE the local face screen is parented into it.
+            // RemotePlayerSystem clones this template, and Mesh.clone() copies the
+            // material by reference - a face plane left in here would paint the
+            // local camera onto every remote avatar.
+            const baseModelTemplate = SkeletonUtils.clone(model);
             
             if (this.faceScreenMesh) {
                 if (headBone) {
@@ -214,7 +224,7 @@ export class Player {
             }
 
             if (this.onBaseModelLoaded) {
-                this.onBaseModelLoaded(model);
+                this.onBaseModelLoaded(baseModelTemplate);
             }
 
             // Apply stream immediately if it was passed in the constructor

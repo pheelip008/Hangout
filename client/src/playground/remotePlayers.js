@@ -8,7 +8,8 @@ import {
     FACE_SCREEN_WIDTH, 
     FACE_SCREEN_HEIGHT, 
     FACE_SCREEN_DEPTH_OFFSET,
-    FACE_SCREEN_BONE_SCALE
+    FACE_SCREEN_BONE_SCALE,
+    FACE_SCREEN_NAME
 } from './player.js';
 
 export class RemotePlayerSystem {
@@ -55,6 +56,15 @@ export class RemotePlayerSystem {
         if (!this.baseModel) return;
         
         const clonedModel = SkeletonUtils.clone(this.baseModel);
+
+        // Defensive: drop any face plane that rode along in the template. Its
+        // material and geometry are shared references with the source mesh, so
+        // detach only - disposing here would kill the local player's face screen.
+        let strayFaceScreen = clonedModel.getObjectByName(FACE_SCREEN_NAME);
+        while (strayFaceScreen && strayFaceScreen.parent) {
+            strayFaceScreen.parent.remove(strayFaceScreen);
+            strayFaceScreen = clonedModel.getObjectByName(FACE_SCREEN_NAME);
+        }
 
         player.group.add(clonedModel);
         player.modelAdded = true;
