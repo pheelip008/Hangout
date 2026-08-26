@@ -160,7 +160,7 @@ export class RemotePlayerSystem {
             color: 0x000000,
             transparent: false,
             toneMapped: false,
-            side: THREE.BackSide
+            side: THREE.FrontSide
         });
         player.faceScreenMesh = new THREE.Mesh(geometry, player.faceScreenMaterial);
         
