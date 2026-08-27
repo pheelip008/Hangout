@@ -60,7 +60,7 @@ function Herosection() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gray-950 py-24 px-6 text-center border-b border-gray-800">
+        <div className="flex-1 flex flex-col items-center justify-center bg-gray-950 py-24 px-6 text-center border-b border-gray-800">
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Video Calls Made <span className="text-[#00FFFF]">Simple</span></h2>
             <p className="mt-6 text-lg text-gray-400 max-w-2xl">Connect with anyone, anywhere. Start or join a meeting in seconds with our highly optimized peer-to-peer network.</p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
