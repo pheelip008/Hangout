@@ -11,6 +11,7 @@ import {
     FACE_SCREEN_BONE_SCALE,
     FACE_SCREEN_NAME
 } from './player.js';
+import { HeadLook } from './headLook.js';
 
 export class RemotePlayerSystem {
     constructor(scene, remoteCameraStreams = {}) {
@@ -86,6 +87,9 @@ export class RemotePlayerSystem {
         
         player.mixer = new THREE.AnimationMixer(clonedModel);
         player.actions = {};
+
+        // Rest pose is captured before the mixer touches the bones
+        player.headLook = new HeadLook(clonedModel, player.group);
         
         // Bind currently available clips
         for (const [name, clip] of Object.entries(this.clips)) {
@@ -150,6 +154,9 @@ export class RemotePlayerSystem {
             targetAnimation: 'Idle',
             faceScreenMaterial: null,
             faceScreenMesh: null,
+            headLook: null,
+            targetHeadYaw: 0,
+            targetHeadPitch: 0,
             videoElement: null,
             videoTexture: null
         };
@@ -235,6 +242,16 @@ export class RemotePlayerSystem {
         const player = this.players.get(data.id);
         if (!player) return;
 
+        // Head angles apply even while seated, so read them before the sitting guard
+        if (data.rotation) {
+            if (typeof data.rotation.headYaw === 'number') {
+                player.targetHeadYaw = data.rotation.headYaw;
+            }
+            if (typeof data.rotation.headPitch === 'number') {
+                player.targetHeadPitch = data.rotation.headPitch;
+            }
+        }
+
         if (player.isSitting) {
             // Ignore position/rotation updates while sitting
             return;
@@ -258,6 +275,7 @@ export class RemotePlayerSystem {
         for (const player of this.players.values()) {
             if (player.isSitting) {
                 if (player.mixer) player.mixer.update(delta);
+                this._updateHeadLook(player, delta);
                 continue;
             }
 
@@ -281,7 +299,16 @@ export class RemotePlayerSystem {
             if (player.mixer) {
                 player.mixer.update(delta);
             }
+
+            this._updateHeadLook(player, delta);
         }
+    }
+
+    // Must run after the player's mixer update - the clips own the neck/Head bones
+    _updateHeadLook(player, delta) {
+        if (!player.headLook) return;
+        player.headLook.setTarget(player.targetHeadYaw, player.targetHeadPitch);
+        player.headLook.update(delta);
     }
 
     sit(id, seatId) {

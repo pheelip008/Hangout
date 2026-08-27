@@ -4,6 +4,7 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { GAME_ASSET_BASE_URL } from './config.js';
 import { networkState, requestSit, leaveSeat } from './network.js';
+import { HeadLook } from './headLook.js';
 
 export const couchSeatTransforms = [
     { id: 0, position: new THREE.Vector3(-1.25, 0.2, 1.0), rotationY: Math.PI },
@@ -68,6 +69,7 @@ export class Player {
         this.mixer = null;
         this.actions = {};
         this.currentActionName = null;
+        this.headLook = null;
 
         // Interaction state
         this.isSitting = false;
@@ -169,7 +171,11 @@ export class Player {
             
             this.characterMesh = new THREE.Group();
             this.characterMesh.add(model);
-            
+            // The model's forward is local +Z while the camera looks down its own -Z, so
+            // spawn the avatar facing away from the camera. Otherwise the head-look offset
+            // starts a full 180 degrees from where the camera points and clamps sideways.
+            this.characterMesh.rotation.y = Math.PI;
+
             const headBone = model.getObjectByName('Head');
 
             // Snapshot the rig BEFORE the local face screen is parented into it.
@@ -196,7 +202,8 @@ export class Player {
             
             this.body.add(this.characterMesh);
 
-
+            // Capture the rest pose now, while the bones are still untouched by the mixer
+            this.headLook = new HeadLook(model, this.characterMesh);
 
             this.mixer = new THREE.AnimationMixer(model);
             
@@ -437,7 +444,9 @@ export class Player {
         console.log("[COUCH] local player sit() called for seat:", seatId);
         this.isSitting = true;
         this.preSitPosition.copy(this.body.position);
-        this.preSitRotationY = this.cameraRig.rotation.y;
+        // Store the body's facing, not the camera's - stand() restores this onto the
+        // character mesh, and the two are a half turn apart.
+        this.preSitRotationY = this.characterMesh ? this.characterMesh.rotation.y : Math.PI;
         
         const seat = couchSeatTransforms[seatId];
         this.body.position.copy(seat.position);
@@ -519,6 +528,7 @@ export class Player {
         if (this.isSitting) {
             const tMixer = performance.now();
             if (this.mixer) this.mixer.update(delta);
+            this._updateHeadLook(delta);
             timings.mixer = performance.now() - tMixer;
             timings.total = performance.now() - tStart;
             return timings;
@@ -661,6 +671,7 @@ export class Player {
         if (this.mixer) {
             this.mixer.update(delta);
         }
+        this._updateHeadLook(delta);
         timings.mixer = performance.now() - tMixer;
         
         timings.total = performance.now() - tStart;
@@ -684,6 +695,33 @@ export class Player {
         }
         
         return false;
+    }
+
+    /**
+     * Points the head wherever the camera is looking. Runs after mixer.update() because
+     * the clips own the neck/Head bones for the frame — see headLook.js.
+     */
+    _updateHeadLook(delta) {
+        if (!this.headLook) return;
+
+        // FPP only. In TPP the camera orbits the character, so its direction says nothing
+        // about where the person is looking - tracking it there just cranks the head
+        // sideways every time the camera swings. Target neutral instead and let the
+        // smoothing ease the head back rather than snapping it.
+        if (this.viewMode !== 'FPP') {
+            this.headLook.setTarget(0, 0);
+            this.headLook.update(delta);
+            return;
+        }
+
+        const bodyYaw = this.characterMesh ? this.characterMesh.rotation.y : 0;
+        // Body forward is local +Z, the camera looks down its own -Z, hence the PI.
+        let yaw = this.cameraRig.rotation.y + Math.PI - bodyYaw;
+        yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw)); // wrap into [-PI, PI]
+
+        // Camera pitch is positive looking up; the bone pitch axis is positive looking down.
+        this.headLook.setTarget(yaw, -this.cameraPitch.rotation.x);
+        this.headLook.update(delta);
     }
 
     updateCameraStream(stream) {

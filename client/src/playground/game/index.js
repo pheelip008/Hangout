@@ -428,6 +428,8 @@ export function initThreeJsGame({
     // Networking states for local player
     const lastSentPos = new THREE.Vector3();
     let lastSentRot = 0;
+    let lastSentHeadYaw = 0;
+    let lastSentHeadPitch = 0;
     let lastSentAnim = null;
     let lastNetworkUpdate = 0;
 
@@ -450,21 +452,26 @@ export function initThreeJsGame({
         if (animChanged || now - lastNetworkUpdate >= 50) { // Send instantly if anim changed, else ~20fps
             const pos = player.body.position;
             const rot = player.characterMesh ? player.characterMesh.rotation.y : 0;
+            const headYaw = player.headLook ? player.headLook.targetYaw : 0;
+            const headPitch = player.headLook ? player.headLook.targetPitch : 0;
             
             const distSq = pos.distanceToSquared(lastSentPos);
             const rotDiff = Math.abs(rot - lastSentRot);
+            const headDiff = Math.abs(headYaw - lastSentHeadYaw) + Math.abs(headPitch - lastSentHeadPitch);
             
             // Send if position changed by ~0.01 units, rotation by ~0.01 radians, or animation changed
-            if (distSq > 0.0001 || rotDiff > 0.01 || animChanged) {
+            if (distSq > 0.0001 || rotDiff > 0.01 || headDiff > 0.02 || animChanged) {
                 lastSentPos.copy(pos);
                 lastSentRot = rot;
+                lastSentHeadYaw = headYaw;
+                lastSentHeadPitch = headPitch;
                 lastSentAnim = currentAnim;
                 lastNetworkUpdate = now;
                 
                 socket.emit("game-player-update", {
                     roomCode,
                     position: { x: pos.x, y: pos.y, z: pos.z },
-                    rotation: { y: rot },
+                    rotation: { y: rot, headYaw, headPitch },
                     animation: currentAnim
                 });
             }

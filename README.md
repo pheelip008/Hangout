@@ -38,6 +38,7 @@ Media is peer-to-peer WebRTC in a mesh topology. Avatar movement, seating and pr
 - A hand-built living room: walls, floor, couch, coffee table and a working TV
 - Third- and first-person camera, pointer-lock mouse look, collision detection
 - Avatars with idle / walk / sit animations and three gestures
+- **Head tracking in first-person** — your avatar's head follows where you look, layered on top of the running animation and synced to everyone in the room
 - **Face screens** — each avatar's head renders that participant's live camera feed as a `THREE.VideoTexture`
 - Four networked couch seats, claimed first-come-first-served and synced to everyone
 - Whoever is screen sharing gets mirrored onto the in-world TV
@@ -258,7 +259,7 @@ Authentication happens in a handshake middleware that reads the `token` cookie �
 | Direction | Event | Payload |
 | --- | --- | --- |
 | client to server | `join-game` / `leave-game` | `{ roomCode }` |
-| client to server | `game-player-update` | `{ roomCode, position, rotation, state, animation }` |
+| client to server | `game-player-update` | `{ roomCode, position, rotation, state, animation }` — `rotation` is `{ y, headYaw, headPitch }` |
 | client to server | `request-sit` / `leave-seat` | `{ roomCode, seatId }` |
 | client to server | `game-gesture` | `{ roomCode, gesture }` |
 | server to client | `game-state` | `{ players, couchSeats }` — sent on join |
