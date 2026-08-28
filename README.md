@@ -29,9 +29,9 @@
 
 ## What is this?
 
-Hangout is a WebRTC video-conferencing app with a twist. At any point during a call you can drop into the **playground** — a shared 3D living room rendered with Three.js — where every participant becomes an avatar whose head is a live screen playing their webcam feed.
+Hangout is a WebRTC video-conferencing app with a twist. At any point during a call you can drop into the **playground**, a shared 3D living room rendered with Three.js, where every participant becomes an avatar whose head is a live screen playing their webcam feed.
 
-Walk around with WASD, sit on the couch, wave at people, and watch a shared screen on the in-world TV. Press `P` and you are back in the normal video grid. Same call, same peers, same connection — just a different way of being in the room together.
+Walk around with WASD, sit on the couch, wave at people, and watch a shared screen on the in-world TV. Press `P` and you are back in the normal video grid. Same call, same peers, same connection, just a different way of being in the room together.
 
 Media is peer-to-peer WebRTC in a mesh topology. Avatar movement, seating and presence ride on the **same Socket.IO connection** already used for signalling, so entering the playground costs no extra handshake.
 
@@ -49,8 +49,8 @@ Media is peer-to-peer WebRTC in a mesh topology. Avatar movement, seating and pr
 - A hand-built living room: walls, floor, couch, coffee table and a working TV
 - Third- and first-person camera, pointer-lock mouse look, collision detection
 - Avatars with idle / walk / sit animations and three gestures
-- **Head tracking in first-person** — your avatar's head follows where you look, layered on top of the running animation and synced to everyone in the room
-- **Face screens** — each avatar's head renders that participant's live camera feed as a `THREE.VideoTexture`
+- **Head tracking in first-person**, your avatar's head follows where you look, layered on top of the running animation and synced to everyone in the room
+- **Face screens**, each avatar's head renders that participant's live camera feed as a `THREE.VideoTexture`
 - Four networked couch seats, claimed first-come-first-served and synced to everyone
 - Whoever is screen sharing gets mirrored onto the in-world TV
 
@@ -89,7 +89,7 @@ flowchart LR
     A1 -.->|"relay fallback"| T
 ```
 
-The server never touches media. It relays SDP offers and answers plus ICE candidates between peers, then relays avatar state for anyone who has also joined the game room. The same `MediaStream` objects that feed the `<video>` tags in the grid are handed straight to the playground and mounted as video textures — the camera is captured once and reused.
+The server never touches media. It relays SDP offers and answers plus ICE candidates between peers, then relays avatar state for anyone who has also joined the game room. The same `MediaStream` objects that feed the `<video>` tags in the grid are handed straight to the playground and mounted as video textures, the camera is captured once and reused.
 
 Glare is handled with a polite/impolite peer scheme (a `socket.id` comparison decides who yields), so simultaneous offers during renegotiation do not deadlock the connection.
 
@@ -110,8 +110,8 @@ You join the first on entering the meeting and the second only when you open the
 
 - **Node.js 20+** and npm
 - A **PostgreSQL** database, local or hosted
-- A **Google OAuth 2.0** client — only if you want social login
-- A **[Metered](https://www.metered.ca/)** account — only if you need TURN relay (see the note below)
+- A **Google OAuth 2.0** client, only if you want social login
+- A **[Metered](https://www.metered.ca/)** account, only if you need TURN relay (see the note below)
 
 ### 1. Clone and install
 
@@ -249,7 +249,7 @@ Routes marked with a lock require the `token` cookie.
 
 ### Socket.IO events
 
-Authentication happens in a handshake middleware that reads the `token` cookie — an unauthenticated socket is rejected before any event fires.
+Authentication happens in a handshake middleware that reads the `token` cookie, an unauthenticated socket is rejected before any event fires.
 
 **Meeting signalling**
 
@@ -311,7 +311,7 @@ Four Prisma models: `User`, `Meeting`, `Participant` and `Message`. A meeting ha
 
 ## Deployment
 
-The client builds to static files and deploys to any static host — a `client/vercel.json` is included for Vercel. The server needs a Node runtime with WebSocket support; its `build` script runs `prisma generate` and `npm start` boots the HTTP and Socket.IO server.
+The client builds to static files and deploys to any static host, a `client/vercel.json` is included for Vercel. The server needs a Node runtime with WebSocket support; its `build` script runs `prisma generate` and `npm start` boots the HTTP and Socket.IO server.
 
 In production set `NODE_ENV=production` so auth cookies are issued with `Secure` and `SameSite=None`, and point `CLIENT_ORIGIN` at the deployed front end — it drives both the CORS allow-list and the post-OAuth redirect.
 
