@@ -1,0 +1,289 @@
+/* ── Excalidraw font ─────────────────────────────────── */
+@font-face {
+  font-family: 'Excalifont';
+  src: url('/images/fonts/Excalifont-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Reset defaults that tailwind might add ──────────── */
+.login-page *,
+.login-page *::before,
+.login-page *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Full-page wrapper ───────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  font-family: 'Excalifont', 'Segoe Print', 'Comic Sans MS', cursive;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Background SVG ──────────────────────────────────── */
+.login-bg {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* ── Card container ──────────────────────────────────── */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 48px 40px;
+}
+
+/* The card SVG sits behind everything */
+.login-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── Content wrapper (logo + card stacked) ───────────── */
+.login-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Logo ─────────────────────────────────────────────── */
+.login-logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+/* ── Title ────────────────────────────────────────────── */
+.login-title {
+  color: #e0e0e0;
+  font-size: 26px;
+  font-family: 'Excalifont', cursive;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* ── Form layout ─────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  align-items: center;
+}
+
+/* ── Input field wrapper (SVG background + input) ─────── */
+.login-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 370px;
+  height: 48px;
+}
+
+.login-input-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
+.login-input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: 'Excalifont', cursive;
+  font-size: 17px;
+  padding: 0 24px;
+  letter-spacing: 0.3px;
+}
+
+.login-input::placeholder {
+  color: #d0d0d0;
+  font-family: 'Excalifont', cursive;
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.login-input:focus {
+  outline: none;
+}
+
+/* Subtle glow on focus */
+.login-input-wrapper:focus-within .login-input-svg {
+  filter: drop-shadow(0 0 6px rgba(134, 142, 150, 0.5));
+}
+
+/* ── Divider ─────────────────────────────────────────── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin: 8px 0;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #868e96;
+  opacity: 0.4;
+}
+
+.login-divider-text {
+  color: #868e96;
+  font-family: 'Excalifont', cursive;
+  font-size: 15px;
+}
+
+/* ── Button wrapper (SVG background + button) ────────── */
+.login-btn-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 48px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.login-btn-wrapper:hover {
+  transform: scale(1.03);
+}
+
+.login-btn-wrapper:active {
+  transform: scale(0.97);
+}
+
+.login-btn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
+.login-btn-wrapper:hover .login-btn-svg {
+  filter: drop-shadow(0 0 8px rgba(134, 142, 150, 0.5));
+}
+
+.login-btn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #1a1a1a;
+  font-family: 'Excalifont', cursive;
+  font-size: 17px;
+  font-weight: normal;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+/* ── Google button — wider ───────────────────────────── */
+.login-google-wrapper {
+  max-width: 340px;
+  margin-bottom: 2px;
+}
+
+/* ── Submit button — slight top margin ───────────────── */
+.login-submit-wrapper {
+  margin-top: 6px;
+}
+
+/* ── Error message ───────────────────────────────────── */
+.login-error {
+  color: #ff6b6b;
+  font-family: 'Excalifont', cursive;
+  font-size: 14px;
+  text-align: center;
+  margin-top: -2px;
+}
+
+/* ── Footer link ─────────────────────────────────────── */
+.login-footer {
+  margin-top: 20px;
+  color: #868e96;
+  font-family: 'Excalifont', cursive;
+  font-size: 15px;
+  text-align: center;
+}
+
+.login-footer a {
+  color: #00FFFF;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-footer a:hover {
+  color: #ffffff;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 560px) {
+  .login-card {
+    width: 380px;
+    padding: 36px 28px 30px;
+  }
+
+  .login-input-wrapper {
+    max-width: 300px;
+  }
+
+  .login-btn-wrapper {
+    max-width: 250px;
+  }
+
+  .login-google-wrapper {
+    max-width: 290px;
+  }
+
+  .login-divider {
+    max-width: 280px;
+  }
+
+  .login-bg {
+    width: 460px;
+    height: 460px;
+  }
+
+  .login-logo {
+    width: 160px;
+  }
+}

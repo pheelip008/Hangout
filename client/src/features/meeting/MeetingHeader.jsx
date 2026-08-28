@@ -29,18 +29,22 @@ function MeetingHeader({ togglePanel, startedAt }) {
     const timeString = startedAt ? formatDuration(duration) : "Waiting...";
 
     return (
-        <header className="flex justify-between items-center p-4 bg-gray-950 border-b border-gray-800 shadow-md">
-            <img src="/hangout1.png" alt="Hangout Logo" className="h-10" />
+        <header className="ex-meeting-header">
+            <img src="/images/hero/navbar-bar.svg" className="ex-meeting-header-bg" alt="" />
+            <img src="/images/meetroom/logo.svg" alt="Hangout Logo" className="h-16 z-10" />
             
-            <div className="flex items-center gap-6">
-                <span className="text-lg font-mono text-[#2a2c3a] tracking-widest bg-gray-900 px-3 py-1 rounded-md border border-gray-800">{timeString}</span>
+            <div className="flex items-center gap-6 z-10">
+                <div className="ex-navbar-pill-wrapper flex items-center justify-center">
+                    <img src="/images/hero/btn-gray.svg" className="ex-navbar-pill-svg" alt="" />
+                    <span className="ex-navbar-pill-text text-black">{timeString}</span>
+                </div>
 
-                <button 
-                    onClick={togglePanel}
-                    className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm border border-gray-700 cursor-pointer font-bold transition-all text-white hover:text-[#00FFFF]"
-                >
-                    👥 Participants
-                </button>
+                <div className="ex-control-btn-wrapper" onClick={togglePanel}>
+                    <img src="/images/hero/btn-dark.svg" className="ex-control-btn-svg" alt="" />
+                    <button className="ex-control-btn text-white">
+                        👥 Participants
+                    </button>
+                </div>
             </div>
         </header>
     );

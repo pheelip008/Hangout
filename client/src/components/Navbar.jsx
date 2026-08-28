@@ -1,67 +1,68 @@
 import React from 'react'
-import {useEffect,useState} from 'react';
-import { Link } from 'react-router-dom';
-import API_BASE from '../config';
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import API_BASE from '../config'
+import '../pagescss/Home.css'
 
-const Navbar = ({children}) => {
-  const [user, setUser] = useState(null);
+const NAVBAR_BAR = '/images/hero/navbar-bar.svg'
+const LOGO_SVG   = '/images/meetroom/logo.svg'
+const PILL_WHITE = '/images/loginandregister/buttons.svg'
 
-  useEffect(()=>{
+const Navbar = ({ children }) => {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
     fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' })
       .then(res => res.json())
-      .then(data => {
-        setUser(data.success ? data.user : null);
-        
-      })
-      .catch(() => {
-        setUser(null);
-        
-      });
-  },[]);
+      .then(data => setUser(data.success ? data.user : null))
+      .catch(() => setUser(null))
+  }, [])
 
-  async function handlelogout(){
-    const res=await fetch(`${API_BASE}/api/auth/logout`,{
-          method:"POST",
-          headers:{'Content-Type':'application/json' },
-          credentials:'include',
-        
+  async function handlelogout() {
+    const res = await fetch(`${API_BASE}/api/auth/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     })
-    const data =await res.json();
-    if(data.success){
-      window.location.href='/login';
-
-    }
-    else{
-      window.location.href='/login'
-    }
+    const data = await res.json()
+    window.location.href = '/login'
   }
+
   return (
-    <nav className="flex items-center justify-between border-b border-gray-800 bg-gray-950 px-6 py-4 shadow-md">
-      <img src="/hangout1.png" alt="Hangout Logo" className="h-10" />
-      <div className="flex gap-6">
+    <nav className="ex-navbar">
+      <img src={NAVBAR_BAR} alt="" className="ex-navbar-bg" draggable={false} />
+      <img src={LOGO_SVG} alt="Hangout" className="ex-navbar-logo" draggable={false} />
+
+      <div className="ex-navbar-right">
         {children}
+
+        {user && (
+          <>
+            <div className="ex-navbar-pill">
+              <img src={PILL_WHITE} alt="" className="ex-navbar-pill-svg" draggable={false} />
+              <span className="ex-navbar-pill-text">{user?.name}</span>
+            </div>
+            <div className="ex-navbar-pill">
+              <img src={PILL_WHITE} alt="" className="ex-navbar-pill-svg" draggable={false} />
+              <button className="ex-navbar-pill-btn" onClick={handlelogout}>log out</button>
+            </div>
+          </>
+        )}
+
+        {!user && (
+          <>
+            <Link to="/login" className="ex-navbar-pill" style={{ textDecoration: 'none' }}>
+              <img src={PILL_WHITE} alt="" className="ex-navbar-pill-svg" draggable={false} />
+              <span className="ex-navbar-pill-btn">Login</span>
+            </Link>
+            <Link to="/register" className="ex-navbar-pill" style={{ textDecoration: 'none' }}>
+              <img src={PILL_WHITE} alt="" className="ex-navbar-pill-svg" draggable={false} />
+              <span className="ex-navbar-pill-btn">Register</span>
+            </Link>
+          </>
+        )}
       </div>
-      {
-        user&&<div className="flex gap-3">
-        <div className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-gray-300'>{user?.name}</div>
-        <button className="cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50 transition-all"
-        onClick={handlelogout}
-        >Log out</button>
-      </div>
-      }
-      {
-        !user && 
-        <div className="flex gap-3">
-        <button className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#00FFFF] transition-all'>
-          <Link to="/login">Login</Link>
-          </button>
-        <button className='rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 hover:text-[#ff0] transition-all'>
-          <Link to="/register">Register</Link>
-        </button>
-      </div>
-      }
     </nav>
-    
   )
 }
 

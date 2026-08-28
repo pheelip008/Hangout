@@ -1,81 +1,168 @@
-import { useNavigate } from 'react-router-dom';
-import API_BASE from '../../config';
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import API_BASE from '../../config'
+
+const CONTENT_BG = '/images/hero/content-area.svg'
+const BTN_DARK   = '/images/hero/btn-dark.svg'
+const BTN_GRAY   = '/images/hero/btn-gray.svg'
+const CARD_SVG   = '/images/hero/card.svg'
+
+const IMAGES = [
+  '/readmeimages/1.png',
+  '/readmeimages/2.png',
+  '/readmeimages/3.png',
+  '/readmeimages/4.png',
+]
+const EXTENDED_IMAGES = [...IMAGES, ...IMAGES, ...IMAGES]
 
 function Herosection() {
-    const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [slideIndex, setSlideIndex] = useState(IMAGES.length)
+  const [isTransitioning, setIsTransitioning] = useState(true)
+  const intervalRef = useRef(null)
 
-    async function handleStart() {
-        if (window.location.pathname === '/') {
-            navigate('/home');
-            return;
-        }
-        
-        try {
-            const res = await fetch(`${API_BASE}/api/meetings/instant`, {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json",
-                },
-                credentials:'include',
-            })
-            const data=await res.json();
-            if(!data.success){
-                alert(data.message);
-                return;
-            }
-            window.location.href="/meeting/" + data.meeting.roomCode;
-        } catch(err) {
-            console.error(err);
-        }
+  const nextSlide = useCallback(() => {
+    setIsTransitioning(true)
+    setSlideIndex(i => i + 1)
+  }, [])
+
+  const prevSlide = useCallback(() => {
+    setIsTransitioning(true)
+    setSlideIndex(i => i - 1)
+  }, [])
+
+  // Auto-scroll every 3 seconds
+  useEffect(() => {
+    intervalRef.current = setInterval(nextSlide, 3000)
+    return () => clearInterval(intervalRef.current)
+  }, [nextSlide])
+
+  // Handle snap back for infinite scroll
+  useEffect(() => {
+    if (slideIndex >= IMAGES.length * 2) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false)
+        setSlideIndex(slideIndex - IMAGES.length)
+      }, 500)
+      return () => clearTimeout(timer)
     }
-
-    async function handleJoin() {
-        if (window.location.pathname === '/') {
-            navigate('/home');
-            return;
-        }
-
-        const code = prompt("Enter the meeting room code:");
-        if(!code){
-            return
-        }
-        try {
-            const res=await fetch(`${API_BASE}/api/meetings/join`,{
-                method:"POST",
-                credentials:"include",
-                headers:{
-                    "Content-Type":"application/json",
-                },
-                body: JSON.stringify({roomCode:code})
-            })
-            const data=await res.json();
-            if(!data.success){
-                alert(data.message);
-                return;
-            }
-            window.location.href="/meeting/" + data.meeting.roomCode;
-        } catch(err) {
-            console.error(err);
-        }
+    if (slideIndex <= 0) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false)
+        setSlideIndex(slideIndex + IMAGES.length)
+      }, 500)
+      return () => clearTimeout(timer)
     }
+  }, [slideIndex])
 
-    return (
-        <div className="flex-1 flex flex-col items-center justify-center bg-gray-950 py-24 px-6 text-center border-b border-gray-800">
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Video Calls Made <span className="text-[#00FFFF]">Simple</span></h2>
-            <p className="mt-6 text-lg text-gray-400 max-w-2xl">Connect with anyone, anywhere. Start or join a meeting in seconds with our highly optimized peer-to-peer network.</p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <button 
-                    onClick={handleStart}
-                    className="cursor-pointer rounded-lg border border-[#00FFFF] bg-transparent px-8 py-3 font-bold text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black shadow-[0_0_15px_rgba(0,255,255,0.1)] hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all">
-                    Start a Meeting
-                </button>
-                <button 
-                    onClick={handleJoin}
-                    className="cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-8 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-all">
-                    Join a Meeting
-                </button>
-            </div>
+  // Reset auto-scroll on manual interaction
+  function handleManual(fn) {
+    clearInterval(intervalRef.current)
+    fn()
+    intervalRef.current = setInterval(nextSlide, 3000)
+  }
+
+  async function handleStart() {
+    if (window.location.pathname === '/') {
+      navigate('/home')
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/meetings/instant`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!data.success) { alert(data.message); return }
+      window.location.href = '/meeting/' + data.meeting.roomCode
+    } catch (err) { console.error(err) }
+  }
+
+  async function handleJoin() {
+    if (window.location.pathname === '/') {
+      navigate('/home')
+      return
+    }
+    const code = prompt('Enter the meeting room code:')
+    if (!code) return
+    try {
+      const res = await fetch(`${API_BASE}/api/meetings/join`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomCode: code }),
+      })
+      const data = await res.json()
+      if (!data.success) { alert(data.message); return }
+      window.location.href = '/meeting/' + data.meeting.roomCode
+    } catch (err) { console.error(err) }
+  }
+
+  return (
+    <div className="ex-hero">
+      <img src={CONTENT_BG} alt="" className="ex-hero-bg" draggable={false} />
+
+      <div className="ex-hero-content">
+        <h2 className="ex-hero-title">Meets made immersive!</h2>
+        <p className="ex-hero-subtitle">
+          Hangout with your friends in the playground — watch movies, have chats,
+          while looking at one another and moving too! Or have an official meet if you want.
+        </p>
+
+        <div className="ex-hero-buttons">
+          <div className="ex-hero-btn-wrapper">
+            <img src={BTN_DARK} alt="" className="ex-hero-btn-svg" draggable={false} />
+            <button className="ex-hero-btn" onClick={handleStart}>Start meeting</button>
+          </div>
+          <div className="ex-hero-btn-wrapper">
+            <img src={BTN_GRAY} alt="" className="ex-hero-btn-svg" draggable={false} />
+            <button className="ex-hero-btn" onClick={handleJoin}>Join Meet</button>
+          </div>
         </div>
-    )
+
+        {/* Image Carousel */}
+        <div className="ex-carousel">
+          <button
+            className="ex-carousel-arrow ex-carousel-arrow-left"
+            onClick={() => handleManual(prevSlide)}
+          >‹</button>
+          <button
+            className="ex-carousel-arrow ex-carousel-arrow-right"
+            onClick={() => handleManual(nextSlide)}
+          >›</button>
+
+          <div
+            className="ex-carousel-track"
+            style={{ 
+              transform: `translateX(calc(-${slideIndex} * (50% + 12px)))`,
+              transition: isTransitioning ? 'transform 0.5s ease' : 'none'
+            }}
+          >
+            {EXTENDED_IMAGES.map((src, i) => (
+              <div key={i} className="ex-carousel-slide">
+                <img src={CARD_SVG} alt="" className="ex-carousel-card-bg" draggable={false} />
+                <img src={src} alt={`Screenshot ${i + 1}`} className="ex-carousel-img" />
+              </div>
+            ))}
+          </div>
+
+          <div className="ex-carousel-dots">
+            {IMAGES.map((_, i) => (
+              <button
+                key={i}
+                className={`ex-carousel-dot ${i === (slideIndex % IMAGES.length) ? 'active' : ''}`}
+                onClick={() => handleManual(() => {
+                  setIsTransitioning(true)
+                  setSlideIndex(IMAGES.length + i)
+                })}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
-export default Herosection;
+
+export default Herosection

@@ -36,7 +36,7 @@ function MeetingLayout(props) {
     }, [isPlaygroundActive, props.localVideoRef, props.participants]);
 
     return(
-        <div className="flex flex-col h-full w-full bg-gray-900 text-white">
+        <div className="flex flex-col h-full w-full">
             <MeetingHeader 
                 togglePanel={() => setIsPanelOpen(!isPanelOpen)} 
                 startedAt={props.startedAt}
@@ -63,7 +63,7 @@ function MeetingLayout(props) {
                     </main>
                 )}
                 {isPanelOpen && (
-                    <aside className="w-80 flex flex-col border-l border-gray-700 overflow-y-auto">
+                    <aside className="ex-participant-panel border-l border-gray-700/50">
                         <ParticipantPanel
                             localName={props.localName}
                             participants={props.participants || {}}

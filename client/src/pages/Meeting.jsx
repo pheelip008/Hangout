@@ -334,7 +334,7 @@ function Meeting() {
 
     return (
         <>
-            <div className="h-screen w-screen bg-gray-900 overflow-hidden flex flex-col">
+            <div className="ex-page flex flex-col h-screen w-screen overflow-hidden">
             <MeetingLayout 
                 roomCode={roomCode}
                 isLocalScreenSharing={isScreenSharing}

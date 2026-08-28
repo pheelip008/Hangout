@@ -1,98 +1,139 @@
 import React, { useState } from 'react'
 import API_BASE from '../config'
+import '../pagescss/Login.css'
+
+// SVG paths (served from public/)
+const BG_SVG       = '/images/loginandregister/bg.svg'
+const CARD_SVG     = '/images/loginandregister/maincard.svg'
+const NAME_SVG     = '/images/loginandregister/namaplace.svg'
+const EMAIL_SVG    = '/images/loginandregister/emailcardtoypeemail.svg'
+const PASSWORD_SVG = '/images/loginandregister/passwordplace.svg'
+const BUTTON_SVG   = '/images/loginandregister/buttons.svg'
+const LOGO_SVG     = '/images/meetroom/logo.svg'
 
 const Register = () => {
-    const [email,setEmail]=useState('');
-      const [password,setPassword]=useState('');
-      const [name, setName] = useState('');
-      const [error, setError] = useState(null)
-    
-      function handleGoogleLogin() {
-        window.location.href = `${API_BASE}/auth/google`;
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [error, setError] = useState(null)
+
+  function handleGoogleLogin() {
+    window.location.href = `${API_BASE}/auth/google`
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name, email, password }),
+      })
+      const data = await res.json()
+      if (!data.success) {
+        setError(data.message)
+        return
       }
-      
-      async function handleSubmit(e) {
-        e.preventDefault();
-        setError(null);
-    
-        try{
-          const res=await fetch(`${API_BASE}/api/auth/register`,{
-            method:"POST",
-            headers:{'Content-Type':'application/json' },
-            credentials:'include',
-            body: JSON.stringify({name,email,password})
-          })
-          const data=await res.json();
-          if(!data.success){
-            setError(data.message);
-            return;
-          }
-          window.location.href='/home';
-    
-        }catch(err){
-          setError('Something went wrong. Please try again.')
-        }
-      }
-    
-      return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-950">
-          <div className="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-900 p-8 shadow-2xl">
-            <h1 className="mb-6 text-center text-3xl font-bold text-white">Lets Hangout!</h1>
-            <button
-              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 font-semibold text-gray-300 hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50 active:bg-gray-600 transition-all duration-300"
-              onClick={handleGoogleLogin}
-            >
-              {/* <span className="text-xl"><G></span></span> */}
+      window.location.href = '/home'
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+    }
+  }
+
+  return (
+    <div className="login-page">
+      {/* Background hand-drawn shape */}
+      <img src={BG_SVG} alt="" className="login-bg" draggable={false} />
+
+      {/* Logo + Card column */}
+      <div className="login-content">
+        {/* Hangout logo — outside and above the card */}
+        <img src={LOGO_SVG} alt="Hangout" className="login-logo" draggable={false} />
+
+        {/* Card */}
+        <div className="login-card">
+          {/* Card background SVG */}
+          <img src={CARD_SVG} alt="" className="login-card-bg" draggable={false} />
+
+          <h1 className="login-title">Let's Hangout!</h1>
+
+          {/* Google login button */}
+          <div className="login-btn-wrapper login-google-wrapper">
+            <img src={BUTTON_SVG} alt="" className="login-btn-svg" draggable={false} />
+            <button type="button" className="login-btn" onClick={handleGoogleLogin}>
               Continue with Google
             </button>
-    
-            <div className="my-6 flex items-center gap-4">
-              <hr className="flex-1 border-gray-800" />
-              <span className="text-sm text-gray-500">or</span>
-              <hr className="flex-1 border-gray-800" />
-            </div>
-    
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <input
+          </div>
+
+          {/* Divider */}
+          <div className="login-divider">
+            <span className="login-divider-line" />
+            <span className="login-divider-text">or</span>
+            <span className="login-divider-line" />
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form">
+            {/* Name field */}
+            <div className="login-input-wrapper">
+              <img src={NAME_SVG} alt="" className="login-input-svg" draggable={false} />
+              <input
                 type="text"
                 placeholder="Name"
                 required
                 value={name}
-                onChange={(e)=>setName(e.target.value)}
-                className="rounded-lg border border-gray-700 bg-gray-800 text-white px-4 py-3 outline-none focus:border-[#ff0] focus:ring-1 focus:ring-[#ff0] placeholder-gray-500 transition-all"
+                onChange={(e) => setName(e.target.value)}
+                className="login-input"
               />
+            </div>
+
+            {/* Email field */}
+            <div className="login-input-wrapper">
+              <img src={EMAIL_SVG} alt="" className="login-input-svg" draggable={false} />
               <input
                 type="email"
                 placeholder="Email"
                 required
                 value={email}
-                onChange={(e)=>setEmail(e.target.value)}
-                className="rounded-lg border border-gray-700 bg-gray-800 text-white px-4 py-3 outline-none focus:border-[#ff0] focus:ring-1 focus:ring-[#ff0] placeholder-gray-500 transition-all"
+                onChange={(e) => setEmail(e.target.value)}
+                className="login-input"
               />
+            </div>
+
+            {/* Password field */}
+            <div className="login-input-wrapper">
+              <img src={PASSWORD_SVG} alt="" className="login-input-svg" draggable={false} />
               <input
                 type="password"
                 placeholder="Password"
                 required
                 value={password}
-                onChange={(e)=>setPassword(e.target.value)}
-                className="rounded-lg border border-gray-700 bg-gray-800 text-white px-4 py-3 outline-none focus:border-[#ff0] focus:ring-1 focus:ring-[#ff0] placeholder-gray-500 transition-all"
+                onChange={(e) => setPassword(e.target.value)}
+                className="login-input"
               />
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <button
-                type="submit"
-                className="mt-2 cursor-pointer rounded-lg border border-[#ff0] bg-transparent px-4 py-3 font-bold text-[#ff0] hover:bg-[#ff0] hover:text-black active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(255,255,0,0.1)] hover:shadow-[0_0_20px_rgba(255,255,0,0.4)]"
-              >
+            </div>
+
+            {error && <p className="login-error">{error}</p>}
+
+            {/* Submit button */}
+            <div className="login-btn-wrapper login-submit-wrapper">
+              <img src={BUTTON_SVG} alt="" className="login-btn-svg" draggable={false} />
+              <button type="submit" className="login-btn">
                 Register
               </button>
-            </form>
-    
-            <p className="mt-6 text-center text-sm text-gray-500">
-              Already have an account?{' '}
-              <a href="/login" className="font-semibold text-[#ff0] hover:text-white transition-colors">Log In</a>
-            </p>
-          </div>
+            </div>
+          </form>
+
+          <p className="login-footer">
+            Already have an account?{' '}
+            <a href="/login">Log In</a>
+          </p>
         </div>
-      );
+      </div>
+    </div>
+  )
 }
 
 export default Register

@@ -1,16 +1,17 @@
 import React from 'react'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import {Outlet} from 'react-router-dom';
+import { Outlet } from 'react-router-dom'
+import '../pagescss/Home.css'
 
 const MainLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen">
-    <Navbar/>
-    <div className="flex-1 flex flex-col">
-      <Outlet/>
-    </div>
-    <Footer/>
+    <div className="ex-page">
+      <Navbar />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Outlet />
+      </div>
+      <Footer />
     </div>
   )
 }

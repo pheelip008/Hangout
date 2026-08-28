@@ -23,44 +23,49 @@ function VideoGrid({
     const tileClass = `relative flex items-center justify-center bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 aspect-video group ${getTileWidthClass()}`;
 
     return (
-        <div className="w-full h-full flex gap-4 transition-all duration-300">
+        <div className="ex-video-grid-container transition-all duration-300">
             
             {/* MAIN STAGE (Screen Share) - Only visible when someone is sharing */}
-            <div className={`flex-1 items-center justify-center rounded-2xl bg-gray-950 overflow-hidden relative border border-gray-800 shadow-2xl ${isSpotlight ? 'flex' : 'hidden'}`}>
-                <div className="w-full h-full flex items-center justify-center p-2 relative">
-                    
-                    {/* Both preview videos are ALWAYS in the HTML, we just hide the one we aren't using! */}
-                    <video 
-                        ref={localScreenPreviewRef} 
-                        autoPlay playsInline muted 
-                        className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl ${isLocalScreenSharing ? 'block' : 'hidden'}`} 
-                    />
-                    <video 
-                        ref={remoteScreenRef} 
-                        autoPlay playsInline 
-                        className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl ${isRemoteScreenSharing ? 'block' : 'hidden'}`} 
-                    />
-                    
-                    {isLocalScreenSharing && (
-                        <div className="absolute top-4 left-4 bg-red-600 px-3 py-1 rounded animate-pulse font-bold">
-                            You are sharing
-                        </div>
-                    )}
+            {isSpotlight && (
+                <div className="ex-video-tile flex-1 bg-transparent flex">
+                    <img src="/images/hero/content-area.svg" className="ex-video-tile-bg" alt="" />
+                    <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
+                        
+                        {/* Both preview videos are ALWAYS in the HTML, we just hide the one we aren't using! */}
+                        <video 
+                            ref={localScreenPreviewRef} 
+                            autoPlay playsInline muted 
+                            className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isLocalScreenSharing ? 'block' : 'hidden'}`} 
+                        />
+                        <video 
+                            ref={remoteScreenRef} 
+                            autoPlay playsInline 
+                            className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isRemoteScreenSharing ? 'block' : 'hidden'}`} 
+                        />
+                        
+                        {isLocalScreenSharing && (
+                            <div className="absolute top-8 left-8 bg-[#fa5252] text-[#1e1e1e] px-4 py-2 rounded animate-pulse font-bold font-['Excalifont'] border-2 border-black shadow-[4px_4px_0_#1e1e1e]">
+                                You are sharing
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* CAMERAS GRID / SIDEBAR */}
-            <div className={`flex gap-4 transition-all duration-300 content-center ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row flex-wrap items-center justify-center p-4'}`}>
+            <div className={`flex gap-8 transition-all duration-300 content-center ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row flex-wrap items-center justify-center p-4'}`}>
                  
                  {/* Local Camera */}
-                 <div className={tileClass}>
-                    <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                    <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50 truncate max-w-[80%]">{localName || "You"}</span>
+                 <div className={`ex-video-tile ${getTileWidthClass()}`}>
+                    <img src="/images/hero/card-alt1.svg" className="ex-video-tile-bg" alt="" />
+                    <video ref={localVideoRef} autoPlay muted playsInline className="ex-video-element" />
+                    <span className="ex-video-name-tag">{localName || "You"}</span>
                  </div>
                  
                  {/* Remote Cameras */}
-                 {remoteParticipants.map(p => (
-                     <div key={p.id} className={tileClass}>
+                 {remoteParticipants.map((p, i) => (
+                     <div key={p.id} className={`ex-video-tile ${getTileWidthClass()}`}>
+                        <img src={i % 2 === 0 ? "/images/hero/card-alt2.svg" : "/images/hero/card-alt1.svg"} className="ex-video-tile-bg" alt="" />
                         <video 
                             ref={(el) => {
                                 if (el) {
@@ -78,9 +83,9 @@ function VideoGrid({
                             }}
                             autoPlay 
                             playsInline 
-                            className="w-full h-full object-cover" 
+                            className="ex-video-element" 
                         />
-                        <span className="absolute bottom-4 left-4 bg-gray-950/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-200 border border-gray-700/50 truncate max-w-[80%]">{p.name || "Remote User"}</span>
+                        <span className="ex-video-name-tag">{p.name || "Remote User"}</span>
                      </div>
                  ))}
                  

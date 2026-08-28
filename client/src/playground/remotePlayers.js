@@ -4,12 +4,11 @@ import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { 
     couchSeatTransforms, 
     FACE_SCREEN_POSITION, 
-    FACE_SCREEN_ROTATION, 
-    FACE_SCREEN_WIDTH, 
-    FACE_SCREEN_HEIGHT, 
+    FACE_SCREEN_ROTATION,
     FACE_SCREEN_DEPTH_OFFSET,
     FACE_SCREEN_BONE_SCALE,
-    FACE_SCREEN_NAME
+    FACE_SCREEN_NAME,
+    createFaceScreenGeometry
 } from './player.js';
 import { HeadLook } from './headLook.js';
 
@@ -161,8 +160,8 @@ export class RemotePlayerSystem {
             videoTexture: null
         };
         
-        // Create face screen plane
-        const geometry = new THREE.PlaneGeometry(FACE_SCREEN_WIDTH, FACE_SCREEN_HEIGHT);
+        // Create face screen
+        const geometry = createFaceScreenGeometry();
         player.faceScreenMaterial = new THREE.MeshBasicMaterial({
             color: 0x000000,
             transparent: false,

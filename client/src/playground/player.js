@@ -24,6 +24,37 @@ export const FACE_SCREEN_DEPTH_OFFSET = 0.01;
 export const FACE_SCREEN_BONE_SCALE = 100;
 // Tagged so the remote clone template can be scrubbed of any stray face plane
 export const FACE_SCREEN_NAME = 'FaceScreen';
+// A gentle cylindrical bend so the screen still reads from off to the side instead of
+// vanishing edge-on the way a flat plane does. Raise this for more wrap.
+export const FACE_SCREEN_CURVE = THREE.MathUtils.degToRad(45);
+const FACE_SCREEN_CURVE_SEGMENTS = 16;
+
+/**
+ * Builds the face screen surface, shared by the local player and every remote avatar.
+ *
+ * The screen is a slice of a cylinder whose axis sits behind it, so the middle bulges
+ * forward and the edges angle outward, widening the arc it stays visible over. Arc
+ * length is held at FACE_SCREEN_WIDTH so the screen keeps its size, and the slice is
+ * shifted so its EDGES land exactly where the old flat plane sat - the bulge grows away
+ * from the skull rather than sinking into it.
+ */
+export function createFaceScreenGeometry() {
+    if (FACE_SCREEN_CURVE <= 0) {
+        return new THREE.PlaneGeometry(FACE_SCREEN_WIDTH, FACE_SCREEN_HEIGHT);
+    }
+
+    const radius = FACE_SCREEN_WIDTH / FACE_SCREEN_CURVE;
+    const geometry = new THREE.CylinderGeometry(
+        radius, radius,
+        FACE_SCREEN_HEIGHT,
+        FACE_SCREEN_CURVE_SEGMENTS, 1,
+        true,                       // open ended - no caps
+        -FACE_SCREEN_CURVE / 2,     // centre the arc on +Z
+        FACE_SCREEN_CURVE
+    );
+    geometry.translate(0, 0, -radius * Math.cos(FACE_SCREEN_CURVE / 2));
+    return geometry;
+}
 
 export class Player {
     constructor(camera, scene, colliders = [], interactables = [], raycastMeshes = [], container = document.body, uiPrompt = null, playerName = "Local Player", localCameraStream = null) {
@@ -109,8 +140,8 @@ export class Player {
         this.videoElement = null;
         this.videoTexture = null;
 
-        // Create face screen plane
-        const geometry = new THREE.PlaneGeometry(FACE_SCREEN_WIDTH, FACE_SCREEN_HEIGHT);
+        // Create face screen
+        const geometry = createFaceScreenGeometry();
         this.faceScreenMaterial = new THREE.MeshBasicMaterial({
             color: 0x000000,
             transparent: false,

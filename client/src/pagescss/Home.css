@@ -1,0 +1,634 @@
+/* ── Excalidraw font (shared with Login.css) ─────────── */
+@font-face {
+  font-family: 'Excalifont';
+  src: url('/images/fonts/Excalifont-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ══════════════════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════════════════ */
+.ex-navbar {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 44px;
+  font-family: 'Excalifont', cursive;
+  z-index: 10;
+}
+
+.ex-navbar-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.ex-navbar-logo {
+  height: 60px;
+  width: auto;
+}
+
+.ex-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ex-navbar-pill {
+  position: relative;
+  height: 46px;
+  min-width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ex-navbar-pill-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-navbar-pill-text {
+  position: relative;
+  z-index: 1;
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #1e1e1e;
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 0 20px;
+}
+
+.ex-navbar-pill-btn {
+  position: relative;
+  z-index: 1;
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #1e1e1e;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 20px;
+  transition: opacity 0.2s;
+}
+
+.ex-navbar-pill-btn:hover {
+  opacity: 0.7;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE WRAPPER (gray bg behind everything)
+   ══════════════════════════════════════════════════════ */
+.ex-page {
+  font-family: 'Excalifont', cursive;
+  background: #868e96;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════════════════════════
+   HERO SECTION — fills the viewport
+   ══════════════════════════════════════════════════════ */
+.ex-hero {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 100px);
+  padding: 60px 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ex-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.ex-hero-title {
+  font-family: 'Excalifont', cursive;
+  font-size: 56px;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.ex-hero-subtitle {
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #e64980;
+  max-width: 640px;
+  line-height: 1.6;
+  margin-bottom: 36px;
+}
+
+.ex-hero-buttons {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+/* ── Hero buttons ────────────────────────────────────── */
+.ex-hero-btn-wrapper {
+  position: relative;
+  width: 200px;
+  height: 54px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ex-hero-btn-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.ex-hero-btn-wrapper:active {
+  transform: scale(0.95);
+}
+
+.ex-hero-btn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-hero-btn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #ffffff;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════════════════════════
+   IMAGE CAROUSEL
+   ══════════════════════════════════════════════════════ */
+.ex-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  overflow: hidden;
+}
+
+.ex-carousel-track {
+  display: flex;
+  gap: 24px;
+}
+
+.ex-carousel-slide {
+  position: relative;
+  flex: 0 0 calc(50% - 12px);
+  aspect-ratio: 16 / 10;
+}
+
+.ex-carousel-card-bg {
+  position: absolute;
+  inset: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-carousel-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.ex-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #868e96;
+  color: #ffffff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.2s;
+  font-family: 'Excalifont', cursive;
+}
+
+.ex-carousel-arrow:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.ex-carousel-arrow-left {
+  left: 6px;
+}
+
+.ex-carousel-arrow-right {
+  right: 6px;
+}
+
+.ex-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.ex-carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #495057;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ex-carousel-dot.active {
+  background: #ced4da;
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION — shared for MeetingActions, Scheduled, Recent
+   ══════════════════════════════════════════════════════ */
+.ex-section {
+  position: relative;
+  width: 100%;
+  min-height: 50vh;
+  padding: 48px 40px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ex-section-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-section-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  padding-top: 16px;
+}
+
+.ex-section-title {
+  font-family: 'Excalifont', cursive;
+  font-size: 36px;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ══════════════════════════════════════════════════════
+   QUICK ACTION CARDS
+   ══════════════════════════════════════════════════════ */
+.ex-actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 28px;
+}
+
+.ex-action-card {
+  position: relative;
+  width: 240px;
+  height: 190px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.ex-action-card:hover {
+  transform: scale(1.05);
+}
+
+.ex-action-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  transition: filter 0.3s;
+}
+
+.ex-action-card:hover .ex-action-card-bg {
+  filter: drop-shadow(0 0 12px rgba(206, 212, 218, 0.5));
+}
+
+.ex-action-card-icon {
+  position: relative;
+  z-index: 1;
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 14px;
+}
+
+.ex-action-card-label {
+  position: relative;
+  z-index: 1;
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #1e1e1e;
+}
+
+/* ── Schedule form ───────────────────────────────────── */
+.ex-schedule-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ex-schedule-input-wrapper {
+  position: relative;
+  width: 260px;
+  height: 48px;
+}
+
+.ex-schedule-input-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-schedule-input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: 'Excalifont', cursive;
+  font-size: 15px;
+  padding: 0 20px;
+}
+
+.ex-schedule-input::placeholder {
+  color: #d0d0d0;
+  opacity: 0.7;
+}
+
+.ex-schedule-btn-wrapper {
+  position: relative;
+  width: 200px;
+  height: 48px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.ex-schedule-btn-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.ex-schedule-btn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: 'Excalifont', cursive;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.ex-schedule-btn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════
+   MEETING LIST (Scheduled + Recent)
+   ══════════════════════════════════════════════════════ */
+.ex-meeting-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ex-meeting-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px 20px 48px;
+  min-height: 80px;
+}
+
+.ex-meeting-item-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+.ex-meeting-info {
+  position: relative;
+  z-index: 1;
+}
+
+.ex-meeting-title {
+  font-family: 'Excalifont', cursive;
+  font-size: 18px;
+  color: #1e1e1e;
+  font-weight: normal;
+}
+
+.ex-meeting-date {
+  font-family: 'Excalifont', cursive;
+  font-size: 14px;
+  color: #495057;
+  margin-top: 4px;
+}
+
+.ex-meeting-btn-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 120px;
+  height: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.ex-meeting-btn-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.ex-meeting-btn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-meeting-btn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: 'Excalifont', cursive;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════ */
+.ex-footer {
+  position: relative;
+  width: 100%;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 44px;
+}
+
+.ex-footer-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ex-footer-logo {
+  position: relative;
+  z-index: 1;
+  height: 42px;
+  width: auto;
+}
+
+.ex-footer-link {
+  position: relative;
+  z-index: 1;
+  font-family: 'Excalifont', cursive;
+  font-size: 16px;
+  color: #ced4da;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ex-footer-link:hover {
+  color: #ffffff;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ex-hero-title {
+    font-size: 36px;
+  }
+
+  .ex-hero-subtitle {
+    font-size: 15px;
+  }
+
+  .ex-hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ex-actions-grid {
+    gap: 16px;
+  }
+
+  .ex-action-card {
+    width: 180px;
+    height: 150px;
+  }
+
+  .ex-meeting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 36px;
+  }
+
+  .ex-navbar {
+    height: 72px;
+    padding: 0 20px;
+  }
+
+  .ex-navbar-logo {
+    height: 40px;
+  }
+}

@@ -25,51 +25,52 @@ function ControlBar({
 
     return (
     <>
-        <div className="p-4 bg-gray-950 border-t border-gray-800 w-full shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center justify-center gap-4">
-                <button 
-                    onClick={onToggleAudio}
-                    className={`cursor-pointer rounded-lg border px-5 py-2.5 transition-all font-semibold ${
-                        isAudioMuted ? 'border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700 hover:text-[#00FFFF] hover:border-[#00FFFF]/50'
-                    }`}
-                >
-                    {isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
-                </button>
+        <div className="ex-control-bar">
+            {/* Background */}
+            <img src="/images/hero/content-area.svg" className="ex-control-bar-bg" alt="" />
+            
+            <div className="flex items-center justify-center gap-4 z-10 w-full px-8 max-w-6xl mx-auto">
+                {/* Audio */}
+                <div className="ex-control-btn-wrapper" onClick={onToggleAudio}>
+                    <img src={isAudioMuted ? "/images/hero/btn-gray.svg" : "/images/hero/btn-dark.svg"} className="ex-control-btn-svg" alt="" />
+                    <button className={`ex-control-btn ${!isAudioMuted ? 'text-white' : ''}`}>
+                        {isAudioMuted ? 'Unmute' : 'Mute'}
+                    </button>
+                </div>
                 
-                <button 
-                    onClick={onToggleVideo}
-                    className={`cursor-pointer rounded-lg border px-5 py-2.5 transition-all font-semibold ${
-                        isVideoMuted ? 'border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700 hover:text-[#00FFFF] hover:border-[#00FFFF]/50'
-                    }`}
-                >
-                    {isVideoMuted ? 'Turn On Video' : 'Turn Off Video'}
-                </button>
+                {/* Video */}
+                <div className="ex-control-btn-wrapper" onClick={onToggleVideo}>
+                    <img src={isVideoMuted ? "/images/hero/btn-gray.svg" : "/images/hero/btn-dark.svg"} className="ex-control-btn-svg" alt="" />
+                    <button className={`ex-control-btn ${!isVideoMuted ? 'text-white' : ''}`}>
+                        {isVideoMuted ? 'Turn On Video' : 'Turn Off Video'}
+                    </button>
+                </div>
                 
-                <button
-                    className={`cursor-pointer rounded-lg border px-5 py-2.5 transition-all font-semibold ${isScreenSharing
-                            ? 'border-red-500 bg-red-500/10 hover:bg-red-500/20 text-red-500'
-                            : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50'
-                        }`}
-                    onClick={handleScreenShareClick}
-                >
-                    {isScreenSharing ? 'Stop Sharing' : 'Share Screen'}
-                </button>
+                {/* Screen Share */}
+                <div className="ex-control-btn-wrapper" onClick={handleScreenShareClick}>
+                    <img src={isScreenSharing ? "/images/hero/btn-gray.svg" : "/images/hero/btn-dark.svg"} className="ex-control-btn-svg" alt="" />
+                    <button className={`ex-control-btn ${!isScreenSharing ? 'text-white' : ''}`}>
+                        {isScreenSharing ? 'Stop Sharing' : 'Share Screen'}
+                    </button>
+                </div>
                 
-                <button className="cursor-pointer rounded-lg border border-gray-700 bg-gray-800 px-5 py-2.5 transition-all font-semibold text-white hover:bg-gray-700 hover:text-[#ff0] hover:border-[#ff0]/50">Raise Hand</button>
+                {/* Raise Hand */}
+                <div className="ex-control-btn-wrapper">
+                    <img src="/images/hero/btn-dark.svg" className="ex-control-btn-svg" alt="" />
+                    <button className="ex-control-btn text-white">Raise Hand</button>
+                </div>
                 
-                <button
-                    onClick={onTogglePlayground}
-                    className="cursor-pointer rounded-lg border border-indigo-500 bg-indigo-600 px-5 py-2.5 transition-all font-semibold text-white hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.5)]"
-                >
-                    Playground
-                </button>
+                {/* Playground */}
+                <div className="ex-control-btn-wrapper" onClick={onTogglePlayground}>
+                    <img src="/images/hero/btn-blue.svg" className="ex-control-btn-svg" alt="" />
+                    <button className="ex-control-btn">Playground</button>
+                </div>
                 
-                <button 
-                    onClick={onLeaveMeeting}
-                    className="cursor-pointer rounded-lg border border-red-600 bg-red-600 px-6 py-2.5 text-white font-bold hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] ml-4"
-                >
-                    Leave
-                </button>
+                {/* Leave */}
+                <div className="ex-control-btn-wrapper ml-auto" onClick={onLeaveMeeting}>
+                    <img src="/images/hero/btn-red.svg" className="ex-control-btn-svg" alt="" />
+                    <button className="ex-control-btn text-black font-bold">Leave</button>
+                </div>
             </div>
         </div>
     </>
