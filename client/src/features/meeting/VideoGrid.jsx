@@ -66,7 +66,7 @@ function VideoGrid({
                  <div className={`ex-video-tile ${getTileWidthClass()}`}>
                     <img src="/images/hero/card-alt1.svg" className="ex-video-tile-bg" alt="" />
                     <video ref={localVideoRef} autoPlay muted playsInline className="ex-video-element" />
-                    <span className="ex-video-name-tag">{localName || "You"}</span>
+                    <span className={`ex-video-name-tag ${isSpotlight ? 'ex-video-name-tag--compact' : ''}`}>{localName || "You"}</span>
                  </div>
                  
                  {/* Remote Cameras */}
@@ -92,7 +92,7 @@ function VideoGrid({
                             playsInline 
                             className="ex-video-element" 
                         />
-                        <span className="ex-video-name-tag">{p.name || "Remote User"}</span>
+                        <span className={`ex-video-name-tag ${isSpotlight ? 'ex-video-name-tag--compact' : ''}`}>{p.name || "Remote User"}</span>
                      </div>
                  ))}
                  

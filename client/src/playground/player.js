@@ -29,6 +29,12 @@ export const FACE_SCREEN_NAME = 'FaceScreen';
 export const FACE_SCREEN_CURVE = THREE.MathUtils.degToRad(45);
 const FACE_SCREEN_CURVE_SEGMENTS = 16;
 
+// First-person scroll zoom. Scroll down zooms in, scroll up eases back to normal.
+const FPP_ZOOM_MIN = 1.0;
+const FPP_ZOOM_MAX = 2.0;
+const FPP_ZOOM_STEP = 0.1;
+const FPP_ZOOM_RESPONSE = 12;
+
 /**
  * Builds the face screen surface, shared by the local player and every remote avatar.
  *
@@ -88,6 +94,11 @@ export class Player {
         this.targetCameraZ = this.cameraDistance;
         this.camera.position.set(0, 0, this.cameraDistance); 
 
+        // FPP scroll zoom state
+        this.targetZoom = FPP_ZOOM_MIN;
+        this.camera.zoom = FPP_ZOOM_MIN;
+        this.camera.updateProjectionMatrix();
+
         this.moveForward = false;
         this.moveBackward = false;
         this.moveLeft = false;
@@ -117,6 +128,7 @@ export class Player {
         this._onKeyUp = this.onKeyUp.bind(this);
         this._onClick = this.onClick.bind(this);
         this._onMouseMove = this.onMouseMove.bind(this);
+        this._onWheel = this.onWheel.bind(this);
         
         // Pre-allocate objects for the render loop to prevent garbage collection spikes
         this._raycaster = new THREE.Raycaster();
@@ -372,6 +384,8 @@ export class Player {
             case 'KeyE': this.handleInteract(); break;
             case 'KeyQ': 
                 this.viewMode = this.viewMode === 'TPP' ? 'FPP' : 'TPP';
+                // Zoom is an FPP-only control, so release it on the way out
+                if (this.viewMode !== 'FPP') this.targetZoom = FPP_ZOOM_MIN;
                 break;
             case 'Digit1': this.playGesture('Wave'); break;
             case 'Digit2': this.playGesture('Point'); break;
@@ -411,6 +425,32 @@ export class Player {
         }
     }
 
+    onWheel(event) {
+        if (this.viewMode !== 'FPP') return;
+
+        // Stop the page scrolling behind the canvas
+        event.preventDefault();
+
+        // Scroll down zooms in, scroll up backs off. Sign only - trackpads and mice
+        // report wildly different deltaY magnitudes, so one notch is one step.
+        const direction = Math.sign(event.deltaY);
+        this.targetZoom = THREE.MathUtils.clamp(
+            this.targetZoom + direction * FPP_ZOOM_STEP,
+            FPP_ZOOM_MIN,
+            FPP_ZOOM_MAX
+        );
+    }
+
+    // Eases the camera toward the scroll target. Framerate independent.
+    _updateZoom(delta) {
+        const t = 1 - Math.exp(-FPP_ZOOM_RESPONSE * delta);
+        const next = this.camera.zoom + (this.targetZoom - this.camera.zoom) * t;
+        if (Math.abs(next - this.camera.zoom) > 0.0001) {
+            this.camera.zoom = next;
+            this.camera.updateProjectionMatrix();
+        }
+    }
+
     setupControls() {
         document.addEventListener('keydown', this._onKeyDown);
         document.addEventListener('keyup', this._onKeyUp);
@@ -420,26 +460,9 @@ export class Player {
 
         // Handle mouse look scoped to the container (fired on the locked element)
         this.container.addEventListener('mousemove', this._onMouseMove);
-    }
 
-    destroy() {
-        // Remove event listeners
-        document.removeEventListener('keydown', this._onKeyDown);
-        document.removeEventListener('keyup', this._onKeyUp);
-        this.container.removeEventListener('click', this._onClick);
-        this.container.removeEventListener('mousemove', this._onMouseMove);
-
-        // Exit pointer lock if we own it
-        if (document.pointerLockElement === this.container) {
-            document.exitPointerLock();
-        }
-
-        // Clean up animation mixer
-        if (this.mixer) {
-            this.mixer.stopAllAction();
-            this.mixer.uncacheRoot(this.mixer.getRoot());
-            this.mixer = null;
-        }
+        // passive:false so preventDefault() can stop the page scrolling
+        this.container.addEventListener('wheel', this._onWheel, { passive: false });
     }
 
     handleInteract() {
@@ -553,6 +576,7 @@ export class Player {
             this.camera.position.y = 0;
             this.camera.position.x = 0;
         }
+        this._updateZoom(delta);
         timings.camera = performance.now() - tCamStart;
 
         // 3. Early return if sitting (skip movement logic)
@@ -807,6 +831,25 @@ export class Player {
     }
 
     destroy() {
+        // Remove event listeners
+        document.removeEventListener('keydown', this._onKeyDown);
+        document.removeEventListener('keyup', this._onKeyUp);
+        this.container.removeEventListener('click', this._onClick);
+        this.container.removeEventListener('mousemove', this._onMouseMove);
+        this.container.removeEventListener('wheel', this._onWheel);
+
+        // Exit pointer lock if we own it
+        if (document.pointerLockElement === this.container) {
+            document.exitPointerLock();
+        }
+
+        // Clean up animation mixer
+        if (this.mixer) {
+            this.mixer.stopAllAction();
+            this.mixer.uncacheRoot(this.mixer.getRoot());
+            this.mixer = null;
+        }
+
         if (this.faceScreenMesh) {
             if (this.faceScreenMesh.parent) {
                 this.faceScreenMesh.parent.remove(this.faceScreenMesh);

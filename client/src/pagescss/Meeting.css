@@ -167,6 +167,26 @@
   border: 2px solid #1e1e1e;
   border-radius: 20px;
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  /* Never let a long name span the tile */
+  max-width: calc(100% - 48px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* During a screen share the camera tiles drop into a ~256px sidebar, where the
+   full-size tag covers most of the frame and sits right over the face. Shrink it
+   and tuck it against the bottom edge of the video instead.
+   Must stay AFTER the base rule - same specificity, so source order decides. */
+.ex-video-name-tag--compact {
+  bottom: 18px;
+  left: 18px;
+  font-size: 11px;
+  padding: 1px 8px;
+  border-width: 1.5px;
+  border-radius: 12px;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+  max-width: calc(100% - 36px);
 }
 
 /* ══════════════════════════════════════════════════════
