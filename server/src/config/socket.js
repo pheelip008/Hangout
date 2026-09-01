@@ -100,6 +100,22 @@ function initSocket(server) {
       io.to(to).emit('ice-candidate', { from: socket.id, candidate });
     });
 
+    // Lets receivers tell a screen share apart from a camera. Addressed to one peer
+    // when someone joins mid-share, broadcast to the room when a share starts.
+    socket.on('screen-share-started', ({ to, streamId }) => {
+      if (to) {
+        io.to(to).emit('screen-share-started', { from: socket.id, streamId });
+      } else if (socket.roomCode) {
+        socket.to(socket.roomCode).emit('screen-share-started', { from: socket.id, streamId });
+      }
+    });
+
+    socket.on('screen-share-stopped', () => {
+      if (socket.roomCode) {
+        socket.to(socket.roomCode).emit('screen-share-stopped', { from: socket.id });
+      }
+    });
+
     socket.on('join-game', async ({ roomCode }) => {
       console.log(`join-game event received with code: ${roomCode}`);
       try {

@@ -25,32 +25,39 @@ function VideoGrid({
     return (
         <div className="ex-video-grid-container transition-all duration-300">
             
-            {/* MAIN STAGE (Screen Share) - Only visible when someone is sharing */}
-            {isSpotlight && (
-                <div className="ex-video-tile flex-1 bg-transparent flex">
-                    <img src="/images/hero/content-area.svg" className="ex-video-tile-bg" alt="" />
-                    <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
-                        
-                        {/* Both preview videos are ALWAYS in the HTML, we just hide the one we aren't using! */}
-                        <video 
-                            ref={localScreenPreviewRef} 
-                            autoPlay playsInline muted 
-                            className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isLocalScreenSharing ? 'block' : 'hidden'}`} 
-                        />
-                        <video 
-                            ref={remoteScreenRef} 
-                            autoPlay playsInline 
-                            className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isRemoteScreenSharing ? 'block' : 'hidden'}`} 
-                        />
-                        
-                        {isLocalScreenSharing && (
-                            <div className="absolute top-8 left-8 bg-[#fa5252] text-[#1e1e1e] px-4 py-2 rounded animate-pulse font-bold font-['Excalifont'] border-2 border-black shadow-[4px_4px_0_#1e1e1e]">
-                                You are sharing
-                            </div>
-                        )}
-                    </div>
+            {/* MAIN STAGE (Screen Share) - Only visible when someone is sharing.
+                This stage stays MOUNTED and is hidden with a style instead of being
+                conditionally rendered. Meeting.jsx writes srcObject onto these refs
+                before isSpotlight can possibly be true, so unmounting the stage leaves
+                both refs null at exactly the moment the stream arrives - the local
+                preview comes up blank and remote sharing never turns on at all.
+                Inline display beats .ex-video-tile's own `display: flex`. */}
+            <div
+                className="ex-video-tile flex-1 bg-transparent"
+                style={{ display: isSpotlight ? 'flex' : 'none' }}
+            >
+                <img src="/images/hero/content-area.svg" className="ex-video-tile-bg" alt="" />
+                <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
+
+                    {/* Both preview videos are ALWAYS in the HTML, we just hide the one we aren't using! */}
+                    <video
+                        ref={localScreenPreviewRef}
+                        autoPlay playsInline muted
+                        className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isLocalScreenSharing ? 'block' : 'hidden'}`}
+                    />
+                    <video
+                        ref={remoteScreenRef}
+                        autoPlay playsInline
+                        className={`max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-[#1e1e1e] ${isRemoteScreenSharing ? 'block' : 'hidden'}`}
+                    />
+
+                    {isLocalScreenSharing && (
+                        <div className="absolute top-8 left-8 bg-[#fa5252] text-[#1e1e1e] px-4 py-2 rounded animate-pulse font-bold font-['Excalifont'] border-2 border-black shadow-[4px_4px_0_#1e1e1e]">
+                            You are sharing
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* CAMERAS GRID / SIDEBAR */}
             <div className={`flex gap-8 transition-all duration-300 content-center ${isSpotlight ? 'w-64 flex-col' : 'flex-1 flex-row flex-wrap items-center justify-center p-4'}`}>

@@ -258,10 +258,14 @@ Authentication happens in a handshake middleware that reads the `token` cookie, 
 | client to server | `join-room` | `roomCode` |
 | client to server | `offer` / `answer` | `{ to, offer }` / `{ to, answer }` |
 | client to server | `ice-candidate` | `{ to, candidate }` |
+| client to server | `screen-share-started` | `{ to, streamId }` — `to` omitted broadcasts to the room |
+| client to server | `screen-share-stopped` | — |
 | server to client | `meeting-info` | `{ startedAt, localName }` |
 | server to client | `user-joined` | `{ id, name }` |
 | server to client | `offer` / `answer` | `{ from, offer, name }` / `{ from, answer, name }` |
 | server to client | `ice-candidate` | `{ from, candidate }` |
+| server to client | `screen-share-started` | `{ from, streamId }` — tells the receiver which incoming stream is a screen, not a camera |
+| server to client | `screen-share-stopped` | `{ from }` |
 | server to client | `user-left` | `socketId` |
 | server to client | `error` | message string |
 

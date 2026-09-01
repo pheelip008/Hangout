@@ -14,6 +14,8 @@ function Meeting() {
     const peerConnections = useRef({});
     const pendingCandidates = useRef({});
     const participantCameraStreams = useRef({});
+    // peerId -> the MediaStream.id that peer announced as its screen share
+    const screenStreamIds = useRef({});
     const [participants, setParticipants] = useState({});
     
     const { roomCode } = useParams();
@@ -87,6 +89,14 @@ function Meeting() {
                     const sender = pc.addTrack(track, localScreenStreamRef.current);
                     screenSendersRef.current[id].push(sender);
                 });
+                // This peer is joining mid-share, so both streams reach it at once and
+                // arrival order is not guaranteed. Name the screen stream up front:
+                // socket.io keeps message order, and the offer only goes out later from
+                // the async onnegotiationneeded handler, so this lands first.
+                socket.emit('screen-share-started', {
+                    to: id,
+                    streamId: localScreenStreamRef.current.id
+                });
             }
 
             pc.onnegotiationneeded = async () => {
@@ -112,7 +122,16 @@ function Meeting() {
 
             pc.ontrack = (event) => {
                 const stream = event.streams[0];
-                if (!participantCameraStreams.current[id] || participantCameraStreams.current[id].id === stream.id) {
+                // If the peer told us which stream is its screen we know outright.
+                // Otherwise fall back to the old guess: a peer's first stream is its
+                // camera. That guess only breaks when someone joins mid-share, which is
+                // exactly the case the announcement covers.
+                const announcedScreenId = screenStreamIds.current[id];
+                const isScreenShare = announcedScreenId
+                    ? stream.id === announcedScreenId
+                    : !!participantCameraStreams.current[id] && participantCameraStreams.current[id].id !== stream.id;
+
+                if (!isScreenShare) {
                     participantCameraStreams.current[id] = stream;
                     setParticipants(prev => ({
                         ...prev,
@@ -219,6 +238,23 @@ function Meeting() {
                 console.warn('Failed to add ICE candidate', err);
             }
         });
+        socket.on('screen-share-started', ({ from, streamId }) => {
+            screenStreamIds.current[from] = streamId;
+        });
+
+        socket.on('screen-share-stopped', ({ from }) => {
+            const stoppedStreamId = screenStreamIds.current[from];
+            delete screenStreamIds.current[from];
+
+            // Only tear the stage down if the stream on it is the one that stopped
+            if (remoteScreenRef.current && stoppedStreamId &&
+                remoteScreenRef.current.srcObject &&
+                remoteScreenRef.current.srcObject.id === stoppedStreamId) {
+                remoteScreenRef.current.srcObject = null;
+                setIsRemoteScreenSharing(false);
+            }
+        });
+
         socket.on('error', (message) => {
             alert(message);
         });
@@ -232,6 +268,7 @@ function Meeting() {
             }
             delete pendingCandidates.current[id];
             delete participantCameraStreams.current[id];
+            delete screenStreamIds.current[id];
             if (screenSendersRef.current[id]) delete screenSendersRef.current[id];
             
             setParticipants(prev => {
@@ -281,6 +318,11 @@ function Meeting() {
             });
         });
         
+        // Announce before renegotiation so receivers can tell this stream from a camera
+        if (socketRef.current) {
+            socketRef.current.emit('screen-share-started', { streamId: stream.id });
+        }
+
         setScreenSharing(true);
         }catch(error){
             console.error("error sharing the screen",error);
@@ -298,6 +340,9 @@ function Meeting() {
             }
         });
         screenSendersRef.current = {};
+        if (socketRef.current) {
+            socketRef.current.emit('screen-share-stopped');
+        }
     if(localScreenStreamRef.current){
         localScreenStreamRef.current.getTracks().forEach(track=>track.stop());
         localScreenStreamRef.current=null;
