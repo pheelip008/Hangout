@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hangout-pheelips-projects.vercel.app/sitemap.xml

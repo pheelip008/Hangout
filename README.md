@@ -4,6 +4,8 @@
 
 **Video meetings with a 3D room you can actually walk around in.**
 
+**Live demo: [hangout-pheelips-projects.vercel.app](https://hangout-pheelips-projects.vercel.app)**
+
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![Three.js](https://img.shields.io/badge/three.js-r185-000000?logo=threedotjs&logoColor=white)](https://threejs.org)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
